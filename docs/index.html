@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="BodyMake">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>BodyMake ダッシュボード</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-2: #f0efec;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11,11,11,0.10);
+  --series-1: #2a78d6;
+  --series-1-soft: #86b6ef;
+  --series-2: #eb6834;
+  --good: #0ca30c;
+  --good-text: #006300;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --accent: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #262624;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255,255,255,0.10);
+    --series-1: #3987e5;
+    --series-1-soft: #1c5cab;
+    --series-2: #d95926;
+    --good-text: #0ca30c;
+    --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-2: #262624;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255,255,255,0.10);
+  --series-1: #3987e5;
+  --series-1-soft: #1c5cab;
+  --series-2: #d95926;
+  --good-text: #0ca30c;
+  --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Hiragino Sans", "Segoe UI", sans-serif;
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 48px; }
+header.top { padding: 20px 0 8px; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+h1 { font-size: 22px; margin: 0; letter-spacing: .01em; }
+.sub { color: var(--ink-2); font-size: 13px; }
+.countdown { text-align: right; }
+.countdown b { font-size: 28px; font-variant-numeric: tabular-nums; }
+nav.chips { position: sticky; top: 0; z-index: 5; background: var(--page); padding: 8px 0; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+nav.chips a { flex: none; text-decoration: none; color: var(--ink-2); border: 1px solid var(--border); background: var(--surface); padding: 6px 14px; border-radius: 999px; font-size: 13px; }
+nav.chips a:hover { color: var(--ink); }
+.banner { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; margin: 8px 0; font-size: 13px; color: var(--ink-2); }
+section { margin-top: 28px; scroll-margin-top: 56px; }
+h2 { font-size: 17px; margin: 0 0 12px; display: flex; align-items: baseline; gap: 8px; }
+h2 small { font-weight: 400; color: var(--muted); font-size: 12px; }
+h3 { font-size: 14px; margin: 0 0 8px; color: var(--ink-2); font-weight: 600; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+.grid { display: grid; gap: 12px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.tiles { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.tile .label { color: var(--ink-2); font-size: 12px; }
+.tile .value { font-size: 26px; font-weight: 650; line-height: 1.2; margin-top: 2px; }
+.tile .value small { font-size: 14px; font-weight: 500; color: var(--ink-2); margin-left: 2px; }
+.tile .delta { font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+.delta.good { color: var(--good-text); }
+
+/* ゴール行（今日・今週） */
+.goal-row { display: grid; grid-template-columns: 22px 1fr auto; gap: 4px 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--grid); }
+.goal-row:first-child { border-top: 0; padding-top: 0; }
+.goal-row .name { font-size: 14px; }
+.goal-row .name .note { color: var(--muted); font-size: 12px; margin-left: 4px; }
+.goal-row .num { font-variant-numeric: tabular-nums; font-size: 14px; text-align: right; white-space: nowrap; }
+.goal-row .num span { color: var(--muted); font-size: 12px; }
+.goal-row .bar { grid-column: 2 / 4; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.goal-row .bar i { display: block; height: 100%; border-radius: 3px; background: var(--series-1); }
+.goal-row .bar i.over { background: var(--critical); }
+.st { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 12px; font-weight: 700; color: #fff; }
+.st.good { background: var(--good); }
+.st.warning { background: var(--warning); color: #0b0b0b; }
+.st.critical { background: var(--critical); }
+.st.pending { background: transparent; border: 2px solid var(--axis); color: var(--muted); }
+
+.remaining { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.remaining div { background: var(--surface-2); border-radius: 12px; padding: 8px 12px; }
+.remaining b { font-size: 20px; font-variant-numeric: tabular-nums; }
+.meal { display: grid; grid-template-columns: 64px 1fr auto; gap: 8px; padding: 8px 0; border-top: 1px solid var(--grid); align-items: baseline; }
+.meal:first-of-type { border-top: 0; }
+.meal .when { font-weight: 600; font-size: 13px; }
+.meal .idea { font-size: 14px; }
+.meal .macro { font-size: 12px; color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.menu ol { margin: 0; padding-left: 20px; }
+.menu li { padding: 6px 0; border-top: 1px solid var(--grid); }
+.menu li:first-child { border-top: 0; }
+.menu li .rx { display: block; color: var(--ink-2); font-size: 13px; }
+.pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); margin-right: 4px; }
+.adjust { margin-top: 10px; font-size: 13px; color: var(--ink-2); background: var(--surface-2); border-radius: 10px; padding: 8px 10px; }
+
+.advice { list-style: none; margin: 0; padding: 0; }
+.advice li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 10px 0; border-top: 1px solid var(--grid); }
+.advice li:first-child { border-top: 0; padding-top: 0; }
+.advice .t { font-weight: 600; font-size: 14px; }
+.advice .d { font-size: 13px; color: var(--ink-2); }
+.advice .cat { font-size: 11px; color: var(--muted); }
+.st.info { background: var(--series-1); }
+
+.ai h3 { color: var(--ink); font-size: 16px; }
+.ai ul { margin: 4px 0 10px; padding-left: 18px; font-size: 14px; }
+.ai .meta { font-size: 11px; color: var(--muted); }
+
+.week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 12px; }
+.day { border: 1px solid var(--border); border-radius: 12px; padding: 8px 4px; text-align: center; background: var(--surface); min-width: 0; }
+.day.today { border: 2px solid var(--accent); }
+.day .dw { font-size: 12px; color: var(--ink-2); }
+.day .dn { font-size: 11px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 4px 0; }
+.day .st { margin: 0 auto; }
+
+.progress { position: relative; height: 14px; background: var(--surface-2); border-radius: 7px; margin: 28px 0 28px; }
+.progress .fill { position: absolute; inset: 0 auto 0 0; background: var(--series-1); border-radius: 7px; }
+.progress .mark { position: absolute; top: -22px; transform: translateX(-50%); font-size: 11px; color: var(--ink-2); white-space: nowrap; }
+.progress .plan { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink-2); }
+.progress .ends { position: absolute; top: 20px; font-size: 12px; color: var(--ink-2); }
+
+.timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+.timeline li { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; padding: 10px 0; position: relative; }
+.timeline li::before { content: ""; position: absolute; left: 10px; top: 32px; bottom: -10px; width: 2px; background: var(--grid); }
+.timeline li:last-child::before { display: none; }
+.timeline .d { font-size: 12px; color: var(--ink-2); }
+.timeline .goalv { text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
+.timeline .goalv span { display: block; font-size: 12px; color: var(--muted); }
+
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,.12); border-radius: 10px; padding: 6px 10px; font-size: 12px; white-space: nowrap; opacity: 0; transition: opacity .1s; z-index: 2; }
+.chart .tip b { font-variant-numeric: tabular-nums; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); margin-bottom: 6px; }
+.legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 5px; border-radius: 2px; }
+.legend i.dot { width: 8px; height: 8px; border-radius: 50%; }
+.legend i.dash { background: repeating-linear-gradient(90deg, var(--ink-2) 0 4px, transparent 4px 7px); }
+details { margin-top: 8px; font-size: 13px; }
+details summary { color: var(--ink-2); cursor: pointer; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+th, td { padding: 4px 6px; border-bottom: 1px solid var(--grid); text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+.table-scroll { max-height: 260px; overflow: auto; }
+
+.sources { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--ink-2); }
+.sources span { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; }
+.sources span.stale { border-color: var(--warning); }
+footer { margin-top: 28px; font-size: 12px; color: var(--muted); }
+.empty { color: var(--muted); font-size: 13px; }
+@media (max-width: 420px) {
+  .day .dn { display: none; }
+  .tile .value { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><p class="empty" style="padding-top:40px">読み込み中…</p></div>
+<script>
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n, d = 0) => (n === null || n === undefined ? '—' : Number(n).toLocaleString('ja-JP', { minimumFractionDigits: d, maximumFractionDigits: d }));
+const hm = (min) => (min == null ? '—' : `${Math.floor(min / 60)}時間${String(Math.round(min % 60)).padStart(2, '0')}分`);
+const WD = ['日', '月', '火', '水', '木', '金', '土'];
+const md = (ymd) => { const [, m, d] = ymd.split('-'); return `${+m}/${+d}`; };
+const wd = (ymd) => WD[new Date(ymd + 'T00:00:00Z').getUTCDay()];
+const ICON = { good: '✓', warning: '!', critical: '×', pending: '', info: 'i' };
+const STATUS_LABEL = { good: '達成', warning: '注意', critical: '未達', pending: '未完了', info: '情報' };
+const st = (s) => `<span class="st ${s}" role="img" aria-label="${STATUS_LABEL[s] ?? s}" title="${STATUS_LABEL[s] ?? s}">${ICON[s] ?? ''}</span>`;
+
+function valueText(g) {
+  if (g.unit === 'min') return `${hm(g.actual)} <span>/ ${hm(g.target)}</span>`;
+  if (g.key === 'training') return g.target == null ? '<span>休養日</span>' : g.actual ? '完了' : '<span>未実施</span>';
+  if (g.key === 'weighin') return g.actual == null ? '<span>未測定</span>' : `${fmt(g.actual, 1)} kg`;
+  if (g.key === 'weight') return `${g.actual == null ? '—' : (g.actual > 0 ? '+' : '') + fmt(g.actual, 2)} <span>/ ${fmt(g.target, 2)} kg</span>`;
+  const d = g.unit === 'kg' ? 1 : 0;
+  return `${fmt(g.actual, d)} <span>/ ${fmt(g.target, d)} ${esc(g.unit)}</span>`;
+}
+
+function goalRow(g, { bar = true } = {}) {
+  let pct = null;
+  if (bar && g.target && g.actual != null && g.key !== 'weight') pct = Math.max(0, g.actual / g.target);
+  const over = pct !== null && pct > 1.1 && ['kcal', 'fat', 'carbs'].includes(g.key);
+  return `<div class="goal-row">${st(g.status)}<div class="name">${esc(g.label)}${g.note ? `<span class="note">${esc(g.note)}</span>` : ''}</div><div class="num">${valueText(g)}</div>${
+    pct !== null ? `<div class="bar" role="presentation"><i class="${over ? 'over' : ''}" style="width:${Math.min(100, pct * 100)}%"></i></div>` : ''
+  }</div>`;
+}
+
+/* ---------- チャート ---------- */
+function chartShell(id, h = 220) {
+  return `<div class="chart" id="${id}" style="min-height:${h}px"><div class="tip"></div></div>`;
+}
+
+function niceTicks(min, max, count = 4) {
+  const span = max - min || 1;
+  const step = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000].find((s) => span / s <= count) ?? 5000;
+  const out = [];
+  for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) out.push(+v.toFixed(2));
+  return out;
+}
+
+function drawChart(el, { points, series, bars, target, yFmt, yMin, yMax, tipFmt, height = 220 }) {
+  const W = Math.max(280, el.clientWidth), H = height, m = { t: 10, r: 8, b: 24, l: 40 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b, n = points.length;
+  const x = (i) => m.l + (n <= 1 ? iw / 2 : bars ? (i + 0.5) * (iw / n) : (i / (n - 1)) * iw);
+  const vals = [];
+  points.forEach((p) => series.forEach((s) => p[s.key] != null && vals.push(p[s.key])));
+  if (target != null) vals.push(target);
+  let lo = yMin ?? Math.min(...vals), hi = yMax ?? Math.max(...vals);
+  if (!vals.length) { el.innerHTML = '<p class="empty">データがまだありません</p>'; return; }
+  if (yMin == null) { const pad = (hi - lo) * 0.12 || 1; lo -= pad; hi += pad; }
+  else hi *= 1.08;
+  const y = (v) => m.t + ih - ((v - lo) / (hi - lo)) * ih;
+  const ticks = niceTicks(lo, hi);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(el.dataset.label || '')}">`;
+  ticks.forEach((t) => {
+    svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)" stroke-width="1"/>`;
+    svg += `<text x="${m.l - 6}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${yFmt(t)}</text>`;
+  });
+  const labelEvery = Math.ceil(n / 6);
+  points.forEach((p, i) => {
+    if (i % labelEvery === 0 || i === n - 1) svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--muted)">${md(p.date)}</text>`;
+  });
+  if (bars) {
+    const bw = Math.max(3, Math.min(18, iw / n - 2));
+    const s = series[0];
+    points.forEach((p, i) => {
+      const v = p[s.key];
+      if (v == null) return;
+      const top = y(v), base = y(lo);
+      const h = Math.max(1, base - top), r = Math.min(4, bw / 2, h);
+      const x0 = x(i) - bw / 2;
+      svg += `<path d="M${x0},${base} V${top + r} Q${x0},${top} ${x0 + r},${top} H${x0 + bw - r} Q${x0 + bw},${top} ${x0 + bw},${top + r} V${base} Z" fill="${s.color}"/>`;
+    });
+  }
+  if (target != null) {
+    svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(target)}" y2="${y(target)}" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+    svg += `<text x="${W - m.r}" y="${y(target) - 5}" text-anchor="end" font-size="11" fill="var(--ink-2)">目標 ${yFmt(target)}</text>`;
+  }
+  if (!bars) {
+    series.forEach((s) => {
+      if (s.type === 'dots') {
+        points.forEach((p, i) => p[s.key] != null && (svg += `<circle cx="${x(i)}" cy="${y(p[s.key])}" r="3.5" fill="${s.color}" stroke="var(--surface)" stroke-width="1.5"/>`));
+        return;
+      }
+      let d = '', pen = false;
+      points.forEach((p, i) => {
+        const v = p[s.key];
+        if (v == null) { pen = false; return; }
+        d += `${pen ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`;
+        pen = true;
+      });
+      svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" ${s.dash ? 'stroke-dasharray="5 4"' : ''}/>`;
+    });
+  }
+  svg += `<line class="cross" x1="0" x2="0" y1="${m.t}" y2="${m.t + ih}" stroke="var(--axis)" stroke-width="1" opacity="0"/>`;
+  svg += `<rect x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent" class="hit"/></svg>`;
+  const tip = el.querySelector('.tip');
+  el.innerHTML = '';
+  el.insertAdjacentHTML('beforeend', svg);
+  el.appendChild(tip);
+  const svgEl = el.querySelector('svg'), cross = el.querySelector('.cross');
+  const move = (ev) => {
+    const r = svgEl.getBoundingClientRect();
+    const px = ((ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left) * (W / r.width);
+    let i = bars ? Math.floor((px - m.l) / (iw / n)) : Math.round(((px - m.l) / iw) * (n - 1));
+    i = Math.max(0, Math.min(n - 1, i));
+    cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('opacity', 1);
+    tip.innerHTML = tipFmt(points[i]);
+    tip.style.opacity = 1;
+    const left = (x(i) / W) * r.width;
+    tip.style.left = Math.min(Math.max(0, left - tip.offsetWidth / 2), r.width - tip.offsetWidth) + 'px';
+    tip.style.top = '-8px';
+  };
+  const leave = () => { tip.style.opacity = 0; cross.setAttribute('opacity', 0); };
+  svgEl.addEventListener('pointermove', move);
+  svgEl.addEventListener('pointerdown', move);
+  svgEl.addEventListener('pointerleave', leave);
+}
+
+/* ---------- レンダリング ---------- */
+function render(d) {
+  const c = d.current, g = d.goal, t = d.targets;
+  const plan = g.deltaVsPlanKg;
+  const ahead = plan != null && plan <= 0;
+  const app = $('#app');
+  app.innerHTML = `
+  <header class="top">
+    <div><h1>BodyMake</h1><div class="sub">${esc(d.today.replaceAll('-', '/'))}（${wd(d.today)}）・${esc(d.training.phase.name)}</div></div>
+    <div class="countdown"><div class="sub">${md(g.targetDate)} のゴールまで</div><b>${g.daysLeft}</b> 日</div>
+  </header>
+  ${d.demo ? '<div class="banner">これはサンプルデータのデモ表示です。iPhoneから同期すると自分のデータに置き換わります。</div>' : ''}
+  <nav class="chips"><a href="#today">今日</a><a href="#week">今週</a><a href="#goal">3月末ゴール</a><a href="#milestones">マイルストーン</a><a href="#trends">推移</a></nav>
+
+  <div class="grid tiles" style="margin-top:8px">
+    <div class="card tile"><div class="label">体重（トレンド）</div><div class="value">${fmt(c.trendWeightKg, 1)}<small>kg</small></div><div class="delta ${c.changeFromStartKg < 0 ? 'good' : ''}">開始から ${c.changeFromStartKg > 0 ? '+' : ''}${fmt(c.changeFromStartKg, 1)} kg</div></div>
+    <div class="card tile"><div class="label">体脂肪率</div><div class="value">${fmt(c.bodyFatPct, 1)}<small>%</small></div><div class="delta">除脂肪 ${fmt(c.leanMassKg, 1)} kg</div></div>
+    <div class="card tile"><div class="label">計画ラインとの差</div><div class="value">${plan == null ? '—' : (plan > 0 ? '+' : '') + fmt(plan, 1)}<small>kg</small></div><div class="delta ${ahead ? 'good' : ''}">${plan == null ? '' : ahead ? '計画より先行' : '計画より遅れ'}</div></div>
+    <div class="card tile"><div class="label">今日の目標カロリー</div><div class="value">${fmt(t.kcal)}<small>kcal</small></div><div class="delta">P${t.proteinG} F${t.fatG} C${t.carbsG}</div></div>
+  </div>
+
+  <section id="today">
+    <h2>今日の目標 <small>${md(d.today)}（${wd(d.today)}）</small></h2>
+    <div class="grid g2">
+      <div class="card">${d.todayGoals.map((x) => goalRow(x)).join('')}</div>
+      <div class="card">
+        <h3>今日の食事プラン</h3>
+        <div class="remaining">
+          <div><div class="sub">残りカロリー</div><b>${fmt(d.remainingToday.kcal)}</b> kcal</div>
+          <div><div class="sub">残りタンパク質</div><b>${fmt(Math.max(0, d.remainingToday.proteinG))}</b> g</div>
+        </div>
+        ${d.meals.map((m) => `<div class="meal"><div class="when">${esc(m.label)}</div><div class="idea">${esc(m.idea)}</div><div class="macro">${fmt(m.kcal)}kcal・P${m.proteinG}</div></div>`).join('')}
+      </div>
+      <div class="card menu">
+        <h3>今日のトレーニング</h3>
+        <div style="margin-bottom:8px"><span class="pill">${esc(d.training.phase.name)}</span><b>${esc(d.training.name)}</b>${d.training.done ? ' ' + st('good') : ''}</div>
+        <ol>${d.training.items.map((i) => `<li>${esc(i.name)}${i.prescription ? `<span class="rx">${esc(i.prescription)}</span>` : ''}</li>`).join('')}</ol>
+        <div class="adjust">${esc(d.training.phase.note)}${d.training.adjustments.map((a) => `<br>⚙ ${esc(a)}`).join('')}</div>
+      </div>
+      <div class="card">
+        <h3>コーチからの提案</h3>
+        ${d.advice.length ? `<ul class="advice">${d.advice.map((a) => `<li>${st(a.level)}<div><div class="t">${esc(a.title)}</div><div class="d">${esc(a.detail)}</div></div></li>`).join('')}</ul>` : '<p class="empty">記録が貯まると提案が表示されます</p>'}
+      </div>
+      ${d.aiCoach ? aiCard(d.aiCoach) : ''}
+    </div>
+  </section>
+
+  <section id="week">
+    <h2>今週の目標 <small>${md(d.week.start)}〜${md(d.week.end)}</small></h2>
+    <div class="week-strip">${d.week.plan.map((p) => `<div class="day ${p.today ? 'today' : ''}"><div class="dw">${wd(p.date)} ${md(p.date)}</div><div class="dn" title="${esc(p.name)}">${esc(p.name.replace(/（.*）/, ''))}</div>${p.kind === 'rest' ? st('good') : p.done ? st('good') : p.past ? st('critical') : st('pending')}</div>`).join('')}</div>
+    <div class="card">${d.week.goals.map((x) => goalRow(x, { bar: ['strength', 'cardio', 'protein', 'steps', 'sleep'].includes(x.key) })).join('')}</div>
+  </section>
+
+  <section id="goal">
+    <h2>3月末のゴール <small>${esc(g.targetDate.replaceAll('-', '/'))}・残り${g.weeksLeft}週</small></h2>
+    <div class="card">
+      <div class="grid tiles">
+        <div class="tile"><div class="label">目標体重</div><div class="value">${fmt(g.targetWeightKg, 1)}<small>kg</small></div><div class="delta">あと ${fmt(g.remainingKg, 1)} kg</div></div>
+        <div class="tile"><div class="label">目標体脂肪率</div><div class="value">${fmt(g.targetBodyFatPct, 1)}<small>%</small></div><div class="delta">現在 ${fmt(c.bodyFatPct, 1)}%・計画 ${fmt(g.plannedTodayBodyFatPct, 1)}%</div></div>
+        <div class="tile"><div class="label">今のペースだと3月末</div><div class="value">${fmt(g.projectedKg, 1)}<small>kg</small></div><div class="delta">${c.recentRateKgPerWeek == null ? '2週間分の記録で予測' : `直近 週${c.recentRateKgPerWeek > 0 ? '+' : ''}${fmt(c.recentRateKgPerWeek, 2)} kg`}</div></div>
+        <div class="tile"><div class="label">必要なペース</div><div class="value">${fmt(t.weeklyRateKg, 2)}<small>kg/週</small></div><div class="delta">${t.goalAtRisk ? '⚠ 安全上限を超過' : `上限 ${fmt(t.maxWeeklyRateKg, 2)} kg/週`}</div></div>
+      </div>
+      ${progressBar(g, c)}
+    </div>
+  </section>
+
+  <section id="milestones">
+    <h2>マイルストーン</h2>
+    <div class="card"><ul class="timeline">${d.milestones.map((m) => `<li>${st(m.status === 'achieved' ? 'good' : m.status === 'missed' ? 'critical' : 'pending')}<div><div class="d">${esc(m.date.replaceAll('-', '/'))}${m.daysLeft >= 0 ? `・あと${m.daysLeft}日` : ''}</div><div>${esc(m.label)}</div></div><div class="goalv">${fmt(m.targetWeightKg, 1)} kg<span>体脂肪 ${fmt(m.targetBodyFatPct, 1)}%</span></div></li>`).join('')}</ul></div>
+  </section>
+
+  <section id="trends">
+    <h2>推移</h2>
+    <div class="grid g2">
+      <div class="card"><h3>体重</h3><div class="legend"><span><i class="dot" style="background:var(--series-1-soft)"></i>測定値</span><span><i style="background:var(--series-1)"></i>トレンド</span><span><i class="dash"></i>計画ライン</span></div>${chartShell('c-weight', 240)}${tableView(d.series.weight.filter((p) => p.weight != null).reverse(), [['date', '日付'], ['weight', '体重'], ['trend', 'トレンド'], ['plan', '計画'], ['bodyFatPct', '体脂肪%']])}</div>
+      <div class="card"><h3>摂取カロリー（28日）</h3>${chartShell('c-kcal')}${tableView([...d.series.daily].reverse(), [['date', '日付'], ['kcal', 'kcal'], ['proteinG', 'P(g)']])}</div>
+      <div class="card"><h3>タンパク質（28日）</h3>${chartShell('c-protein')}</div>
+      <div class="card"><h3>睡眠（28日）</h3>${chartShell('c-sleep')}${tableView([...d.series.daily].reverse().map((r) => ({ ...r, sleep: hm(r.sleepMinutes) })), [['date', '日付'], ['sleep', '睡眠'], ['steps', '歩数']])}</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>データの同期状況</h2>
+    <div class="sources">${d.sources.map((s) => `<span class="${s.days === null || s.days >= 2 ? 'stale' : ''}">${esc(s.label)}：${s.lastDate ? (s.days === 0 ? '今日' : s.days + '日前') : '未受信'}</span>`).join('')}</div>
+  </section>
+  <footer>推定TDEE ${fmt(d.energy.tdee)} kcal（式 ${fmt(d.energy.formula)}${d.energy.observed ? `・実測 ${fmt(d.energy.observed)}` : ''}）・更新 ${new Date(d.generatedAt).toLocaleString('ja-JP')}</footer>`;
+
+  const pts = d.series.daily;
+  const draws = [
+    () => drawChart($('#c-weight'), { points: d.series.weight, height: 240, series: [{ key: 'plan', color: 'var(--ink-2)', dash: true }, { key: 'weight', color: 'var(--series-1-soft)', type: 'dots' }, { key: 'trend', color: 'var(--series-1)' }], yFmt: (v) => v.toFixed(1), tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br>測定 <b>${fmt(p.weight, 1)}</b> kg・トレンド <b>${fmt(p.trend, 1)}</b><br>計画 ${fmt(p.plan, 1)} kg` }),
+    () => drawChart($('#c-kcal'), { points: pts, bars: true, series: [{ key: 'kcal', color: 'var(--series-1)' }], target: t.kcal, yMin: 0, yFmt: (v) => fmt(v), tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br><b>${fmt(p.kcal)}</b> kcal・P ${fmt(p.proteinG)}g` }),
+    () => drawChart($('#c-protein'), { points: pts, bars: true, series: [{ key: 'proteinG', color: 'var(--series-1)' }], target: t.proteinG, yMin: 0, yFmt: (v) => fmt(v), tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br>タンパク質 <b>${fmt(p.proteinG)}</b> g` }),
+    () => drawChart($('#c-sleep'), { points: pts.map((p) => ({ ...p, sleepH: p.sleepMinutes == null ? null : p.sleepMinutes / 60 })), bars: true, series: [{ key: 'sleepH', color: 'var(--series-1)' }], target: t.sleepMinutes / 60, yMin: 0, yFmt: (v) => v.toFixed(1) + 'h', tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br>睡眠 <b>${hm(p.sleepMinutes)}</b>` }),
+  ];
+  const drawAll = () => draws.forEach((f) => f());
+  drawAll();
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawAll, 150); });
+}
+
+function aiCard(ai) {
+  const list = (title, xs) => (xs?.length ? `<div class="sub">${title}</div><ul>${xs.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '');
+  return `<div class="card ai"><h3>AIコーチ：${esc(ai.headline)}</h3>${list('今日やること', ai.today)}${list('食事', ai.nutrition)}${list('トレーニング', ai.training)}${list('回復', ai.recovery)}<div class="sub">今週の重点：${esc(ai.weekFocus)}</div><div class="meta">${esc(new Date(ai.generatedAt).toLocaleString('ja-JP'))} 生成</div></div>`;
+}
+
+function progressBar(g, c) {
+  const span = g.startWeightKg - g.targetWeightKg;
+  if (!span) return '';
+  const pos = (kg) => Math.max(0, Math.min(100, ((g.startWeightKg - kg) / span) * 100));
+  return `<div class="progress" role="img" aria-label="開始${g.startWeightKg}kgから目標${g.targetWeightKg}kgまでの進捗 ${g.progressPct}%">
+    <div class="fill" style="width:${pos(c.trendWeightKg)}%"></div>
+    <div class="plan" style="left:${pos(g.plannedTodayKg)}%" title="今日の計画値"></div>
+    <div class="mark" style="left:${pos(c.trendWeightKg)}%">現在 ${fmt(c.trendWeightKg, 1)}kg（${g.progressPct}%）</div>
+    <div class="ends" style="left:0">開始 ${fmt(g.startWeightKg, 1)}kg</div>
+    <div class="ends" style="right:0">目標 ${fmt(g.targetWeightKg, 1)}kg</div>
+  </div><div class="sub" style="margin-top:8px">縦線は今日の計画値（${fmt(g.plannedTodayKg, 1)}kg）</div>`;
+}
+
+function tableView(rows, cols) {
+  return `<details><summary>表で見る</summary><div class="table-scroll"><table><thead><tr>${cols.map(([, h]) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows
+    .map((r) => `<tr>${cols.map(([k]) => `<td>${k === 'date' ? md(r[k]) : esc(r[k] ?? '—')}</td>`).join('')}</tr>`)
+    .join('')}</tbody></table></div></details>`;
+}
+
+fetch('data.json?t=' + Date.now())
+  .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(render)
+  .catch((e) => { $('#app').innerHTML = `<p class="empty" style="padding-top:40px">data.json を読み込めませんでした（${esc(e.message)}）。<br><code>npm run build</code> か <code>npm run demo</code> を実行してください。</p>`; });
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "_note": "★ 初期値はサンプルです。profile と goal を自分の数値に書き換えてください（README「1. 目標を設定する」参照）",
+  "timezone": "Asia/Tokyo",
+  "profile": {
+    "sex": "male",
+    "age": 35,
+    "heightCm": 172,
+    "activityLevel": "moderate",
+    "startDate": "2026-11-01",
+    "startWeightKg": 75.0,
+    "startBodyFatPct": 20.0
+  },
+  "goal": {
+    "targetDate": "2027-03-31",
+    "targetWeightKg": 68.0,
+    "targetBodyFatPct": 12.0,
+    "maxWeeklyLossPct": 1.0
+  },
+  "milestones": [
+    { "date": "2026-11-30", "label": "習慣化：記録100%・週4トレ定着" },
+    { "date": "2026-12-31", "label": "年末：体脂肪 -2%" },
+    { "date": "2027-01-31", "label": "1月：腹筋の輪郭が見え始める" },
+    { "date": "2027-02-28", "label": "2月：減量の山場" },
+    { "date": "2027-03-31", "label": "ゴール：理想のボディ" }
+  ],
+  "daily": {
+    "sleepHours": 7.5,
+    "steps": 8000,
+    "proteinGPerKg": 2.0,
+    "fatPctOfKcal": 25
+  },
+  "weekly": {
+    "strengthSessions": 4,
+    "cardioSessions": 2
+  },
+  "program": {
+    "mon": "push",
+    "tue": "lower",
+    "wed": "cardio",
+    "thu": "pull",
+    "fri": "lower2",
+    "sat": "cardio",
+    "sun": "rest"
+  }
+}
