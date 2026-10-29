@@ -2,41 +2,55 @@
  "generatedAt": "2026-10-29T03:00:00.000Z",
  "today": "2026-10-29",
  "demo": true,
+ "profile": {
+  "sex": "male",
+  "age": 49,
+  "heightCm": 167
+ },
  "current": {
-  "trendWeightKg": 73,
-  "lastWeightKg": 72.9,
+  "trendWeightKg": 85.5,
+  "lastWeightKg": 85.6,
   "lastWeighDate": "2026-10-29",
-  "bodyFatPct": 17.4,
-  "leanMassKg": 60.3,
-  "changeFromStartKg": -2,
-  "recentRateKgPerWeek": -0.41
+  "bodyFatPct": 25.2,
+  "lastBodyFatPct": 24.1,
+  "leanMassKg": 63.9,
+  "changeFromStartLeanKg": 0.3,
+  "changeFromStartBf": -0.9,
+  "bfRatePerWeek": -0.17,
+  "leanRatePerWeek": 0.07,
+  "changeFromStartKg": -0.5,
+  "recentRateKgPerWeek": -0.09
  },
  "energy": {
-  "formula": 2534,
-  "observed": 2524,
-  "tdee": 2527,
+  "formula": 2570,
+  "observed": 2399,
+  "tdee": 2450,
   "observedWeight": 0.7
  },
  "targets": {
-  "kcal": 2270,
-  "proteinG": 146,
-  "fatG": 63,
-  "carbsG": 281,
+  "kcal": 2300,
+  "proteinG": 171,
+  "fatG": 64,
+  "carbsG": 260,
   "sleepMinutes": 450,
   "steps": 8000,
-  "weeklyRateKg": 0.23,
-  "neededWeeklyRateKg": 0.23,
-  "maxWeeklyRateKg": 0.73,
-  "deficit": 252,
+  "weeklyRateKg": 0.14,
+  "neededWeeklyRateKg": 0.14,
+  "maxWeeklyRateKg": 0.43,
+  "fatToLoseKg": 3,
+  "deficit": 153,
   "goalAtRisk": false,
   "kcalFloored": false,
-  "daysLeft": 153
+  "daysLeft": 153,
+  "kcalToday": 2190,
+  "carbsToday": 233,
+  "dayAdjustKcal": -110
  },
  "todayGoals": [
   {
    "key": "weighin",
    "label": "体重測定",
-   "actual": 72.9,
+   "actual": 85.6,
    "target": null,
    "unit": "kg",
    "status": "good"
@@ -53,7 +67,7 @@
    "key": "kcal",
    "label": "カロリー",
    "actual": 1180,
-   "target": 2270,
+   "target": 2190,
    "unit": "kcal",
    "status": "pending"
   },
@@ -61,7 +75,7 @@
    "key": "protein",
    "label": "タンパク質",
    "actual": 88,
-   "target": 146,
+   "target": 171,
    "unit": "g",
    "status": "pending"
   },
@@ -69,7 +83,7 @@
    "key": "fat",
    "label": "脂質",
    "actual": 35,
-   "target": 63,
+   "target": 64,
    "unit": "g",
    "status": "good"
   },
@@ -77,7 +91,7 @@
    "key": "carbs",
    "label": "炭水化物",
    "actual": 130,
-   "target": 281,
+   "target": 233,
    "unit": "g",
    "status": "good"
   },
@@ -92,83 +106,79 @@
   {
    "key": "training",
    "label": "トレーニング",
-   "actual": 0,
-   "target": 1,
+   "actual": null,
+   "target": null,
    "unit": "",
-   "status": "pending",
-   "note": "上半身プル（背中・二頭）"
+   "status": "good",
+   "note": "休養日"
   }
  ],
  "remainingToday": {
-  "kcal": 1090,
-  "proteinG": 58
+  "kcal": 1010,
+  "proteinG": 83
  },
  "meals": [
   {
    "key": "breakfast",
    "label": "朝食",
-   "kcal": 570,
-   "proteinG": 37,
-   "carbsG": 70,
+   "kcal": 550,
+   "proteinG": 43,
+   "carbsG": 58,
    "idea": "卵2個＋全粒粉トースト＋ギリシャヨーグルト"
   },
   {
    "key": "lunch",
    "label": "昼食",
-   "kcal": 680,
-   "proteinG": 44,
-   "carbsG": 84,
+   "kcal": 770,
+   "proteinG": 60,
+   "carbsG": 82,
    "idea": "コンビニ：サラダチキン＋おにぎり2個＋サラダ"
   },
   {
    "key": "snack",
-   "label": "トレ前後",
-   "kcal": 340,
-   "proteinG": 22,
-   "carbsG": 42,
+   "label": "間食",
+   "kcal": 220,
+   "proteinG": 17,
+   "carbsG": 23,
    "idea": "ギリシャヨーグルト＋ナッツ10g"
   },
   {
    "key": "dinner",
    "label": "夕食",
-   "kcal": 680,
-   "proteinG": 44,
-   "carbsG": 84,
+   "kcal": 660,
+   "proteinG": 51,
+   "carbsG": 70,
    "idea": "豚ヒレの生姜焼き＋ご飯150g＋温野菜"
   }
  ],
  "training": {
-  "key": "pull",
-  "name": "上半身プル（背中・二頭）",
-  "kind": "strength",
+  "key": "rest",
+  "intensity": "normal",
+  "name": "休養日",
+  "kind": "rest",
   "phase": {
-   "key": "foundation",
-   "name": "基礎期",
-   "sets": 3,
-   "reps": "8〜12",
+   "key": "adapt",
+   "name": "適応期",
+   "mainSets": 3,
+   "accSets": 3,
+   "mainReps": "6〜10",
+   "accReps": "10〜12",
    "rpe": "7〜8",
-   "note": "フォーム最優先。毎週どれか1種目で重量 or 回数を更新"
+   "note": "今日は完全休養。週6回のトレーニングで伸ばすための大事な回復日です。タンパク質はトレ日と同じだけ摂りましょう"
   },
+  "deload": false,
   "items": [
    {
-    "name": "懸垂 or ラットプルダウン",
-    "prescription": "3セット × 8〜12回（RPE 7〜8）"
+    "name": "完全休養（筋肉は休んでいる間に育ちます）",
+    "prescription": ""
    },
    {
-    "name": "ベントオーバーロウ",
-    "prescription": "3セット × 8〜12回（RPE 7〜8）"
+    "name": "散歩で歩数目標を達成",
+    "prescription": ""
    },
    {
-    "name": "シーテッドロウ",
-    "prescription": "3セット × 8〜12回（RPE 7〜8）"
-   },
-   {
-    "name": "フェイスプル",
-    "prescription": "3セット × 8〜12回（RPE 7〜8）"
-   },
-   {
-    "name": "バーベルカール",
-    "prescription": "3セット × 8〜12回（RPE 7〜8）"
+    "name": "ストレッチ・モビリティ 10分",
+    "prescription": ""
    }
   ],
   "adjustments": [],
@@ -178,47 +188,47 @@
   "start": "2026-10-26",
   "end": "2026-11-01",
   "daysLeft": 4,
-  "strengthNeeded": 2,
+  "strengthNeeded": 3,
   "goals": [
    {
     "key": "strength",
     "label": "筋トレ",
-    "actual": 2,
-    "target": 4,
+    "actual": 3,
+    "target": 6,
     "unit": "回",
     "status": "pending"
    },
    {
-    "key": "cardio",
-    "label": "有酸素",
-    "actual": 1,
-    "target": 2,
-    "unit": "回",
-    "status": "pending"
+    "key": "bf",
+    "label": "体脂肪率の変化",
+    "actual": -0.2,
+    "target": -0.15,
+    "unit": "%",
+    "status": "good"
    },
    {
-    "key": "weight",
-    "label": "体重変化",
-    "actual": -0.21,
-    "target": -0.23,
+    "key": "lean",
+    "label": "除脂肪体重の変化",
+    "actual": 0.12,
+    "target": 0.07,
     "unit": "kg",
     "status": "good"
    },
    {
     "key": "kcal",
     "label": "平均カロリー",
-    "actual": 2050,
-    "target": 2270,
+    "actual": 2250,
+    "target": 2300,
     "unit": "kcal",
     "status": "good"
    },
    {
     "key": "protein",
     "label": "平均タンパク質",
-    "actual": 145,
-    "target": 146,
+    "actual": 175,
+    "target": 171,
     "unit": "g",
-    "status": "warning"
+    "status": "good"
    },
    {
     "key": "sleep",
@@ -248,8 +258,9 @@
   "plan": [
    {
     "date": "2026-10-26",
-    "key": "push",
-    "name": "上半身プッシュ（胸・肩・三頭）",
+    "key": "back_shoulders",
+    "intensity": "light",
+    "name": "背中・肩（軽）",
     "kind": "strength",
     "done": true,
     "logged": [
@@ -260,8 +271,9 @@
    },
    {
     "date": "2026-10-27",
-    "key": "lower",
-    "name": "下半身A（スクワット中心）",
+    "key": "legs",
+    "intensity": "light",
+    "name": "脚（軽）",
     "kind": "strength",
     "done": true,
     "logged": [
@@ -272,30 +284,33 @@
    },
    {
     "date": "2026-10-28",
-    "key": "cardio",
-    "name": "有酸素（Zone2）＋腹筋",
-    "kind": "cardio",
+    "key": "chest_arms",
+    "intensity": "light",
+    "name": "胸・腕（軽）",
+    "kind": "strength",
     "done": true,
     "logged": [
-     "cardio"
+     "strength"
     ],
     "past": true,
     "today": false
    },
    {
     "date": "2026-10-29",
-    "key": "pull",
-    "name": "上半身プル（背中・二頭）",
-    "kind": "strength",
-    "done": false,
+    "key": "rest",
+    "intensity": "normal",
+    "name": "休養日",
+    "kind": "rest",
+    "done": null,
     "logged": [],
     "past": false,
     "today": true
    },
    {
     "date": "2026-10-30",
-    "key": "lower2",
-    "name": "下半身B＋体幹（ヒンジ中心）",
+    "key": "back_shoulders",
+    "intensity": "heavy",
+    "name": "背中・肩（重）",
     "kind": "strength",
     "done": false,
     "logged": [],
@@ -304,9 +319,10 @@
    },
    {
     "date": "2026-10-31",
-    "key": "cardio",
-    "name": "有酸素（Zone2）＋腹筋",
-    "kind": "cardio",
+    "key": "legs",
+    "intensity": "heavy",
+    "name": "脚（重）",
+    "kind": "strength",
     "done": false,
     "logged": [],
     "past": false,
@@ -314,10 +330,11 @@
    },
    {
     "date": "2026-11-01",
-    "key": "rest",
-    "name": "休養日",
-    "kind": "rest",
-    "done": null,
+    "key": "chest_arms",
+    "intensity": "heavy",
+    "name": "胸・腕（重）",
+    "kind": "strength",
+    "done": false,
     "logged": [],
     "past": false,
     "today": false
@@ -325,66 +342,90 @@
   ]
  },
  "goal": {
+  "mode": "recomp",
   "targetDate": "2027-03-31",
-  "targetWeightKg": 68,
-  "targetBodyFatPct": 12,
-  "startWeightKg": 75,
-  "startBodyFatPct": 20,
+  "targetLeanMassKg": 65.6,
+  "startLeanMassKg": 63.6,
+  "plannedTodayLeanKg": 64.02,
+  "projectedBodyFatPct": 21.5,
+  "projectedLeanMassKg": 65.5,
+  "deltaVsPlanBf": 0,
+  "deltaVsPlanLean": -0.1,
+  "remainingBf": 3.2,
+  "targetWeightKg": 84.1,
+  "targetBodyFatPct": 22,
+  "startWeightKg": 86,
+  "startBodyFatPct": 26.1,
   "daysLeft": 153,
   "weeksLeft": 21.9,
-  "progressPct": 28,
-  "plannedTodayKg": 73.52,
-  "plannedTodayBodyFatPct": 18.3,
-  "deltaVsPlanKg": -0.51,
-  "projectedKg": 64,
-  "achievableKg": 57.1,
-  "remainingKg": 5
+  "progressPct": 21,
+  "plannedTodayKg": 85.6,
+  "plannedTodayBodyFatPct": 25.23,
+  "deltaVsPlanKg": -0.15,
+  "projectedKg": 83.5,
+  "achievableKg": 76.1,
+  "remainingKg": 1.4
  },
  "milestones": [
   {
    "date": "2026-11-30",
-   "label": "習慣化：記録100%・週4トレ定着",
-   "targetWeightKg": 72.4,
-   "targetBodyFatPct": 17,
+   "label": "習慣化：週6回のトレーニングと毎朝の測定",
+   "targetWeightKg": 85.3,
+   "targetBodyFatPct": 24.56,
+   "targetLeanMassKg": 64.4,
    "daysLeft": 32,
    "status": "upcoming",
-   "actualWeightKg": null
+   "actualWeightKg": null,
+   "actualBodyFatPct": null,
+   "actualLeanMassKg": null
   },
   {
    "date": "2026-12-31",
-   "label": "年末：体脂肪 -2%",
-   "targetWeightKg": 71.3,
-   "targetBodyFatPct": 15.7,
+   "label": "年末年始も週5回以上をキープ",
+   "targetWeightKg": 85,
+   "targetBodyFatPct": 23.9,
+   "targetLeanMassKg": 64.7,
    "daysLeft": 63,
    "status": "upcoming",
-   "actualWeightKg": null
+   "actualWeightKg": null,
+   "actualBodyFatPct": null,
+   "actualLeanMassKg": null
   },
   {
    "date": "2027-01-31",
-   "label": "1月：腹筋の輪郭が見え始める",
-   "targetWeightKg": 70.1,
-   "targetBodyFatPct": 14.4,
+   "label": "主要種目（スクワット・ベンチ・ロウ）の重量 +5〜10%",
+   "targetWeightKg": 84.7,
+   "targetBodyFatPct": 23.25,
+   "targetLeanMassKg": 65,
    "daysLeft": 94,
    "status": "upcoming",
-   "actualWeightKg": null
+   "actualWeightKg": null,
+   "actualBodyFatPct": null,
+   "actualLeanMassKg": null
   },
   {
    "date": "2027-02-28",
-   "label": "2月：減量の山場",
-   "targetWeightKg": 69.1,
-   "targetBodyFatPct": 13.3,
+   "label": "除脂肪体重の増加を確認・最後の追い込み",
+   "targetWeightKg": 84.4,
+   "targetBodyFatPct": 22.66,
+   "targetLeanMassKg": 65.3,
    "daysLeft": 122,
    "status": "upcoming",
-   "actualWeightKg": null
+   "actualWeightKg": null,
+   "actualBodyFatPct": null,
+   "actualLeanMassKg": null
   },
   {
    "date": "2027-03-31",
-   "label": "ゴール：理想のボディ",
-   "targetWeightKg": 68,
-   "targetBodyFatPct": 12,
+   "label": "ゴール：体脂肪率22%・筋肉量を最大化",
+   "targetWeightKg": 84.1,
+   "targetBodyFatPct": 22,
+   "targetLeanMassKg": 65.6,
    "daysLeft": 153,
    "status": "upcoming",
-   "actualWeightKg": null
+   "actualWeightKg": null,
+   "actualBodyFatPct": null,
+   "actualLeanMassKg": null
   }
  ],
  "advice": [
@@ -397,14 +438,14 @@
   {
    "level": "info",
    "category": "nutrition",
-   "title": "タンパク質はあと11g",
-   "detail": "7日平均135g / 目標146g。間食をプロテインかヨーグルトにすれば届きます。"
+   "title": "タンパク質はあと6g",
+   "detail": "7日平均165g / 目標171g。間食をプロテインかヨーグルトにすれば届きます。"
   },
   {
    "level": "good",
    "category": "goal",
-   "title": "順調なペースです",
-   "detail": "直近2週間で週0.41kg減。この調子を維持しましょう。"
+   "title": "理想的に体が変わっています",
+   "detail": "体脂肪率 週-0.17%・除脂肪 週+0.07kg。脂肪が落ちて筋肉が増えています。体重の増減は気にしなくて大丈夫です。"
   }
  ],
  "sources": [
@@ -443,304 +484,514 @@
   "weight": [
    {
     "date": "2026-09-18",
-    "weight": 74.6,
-    "trend": 74.6,
-    "plan": 75,
-    "bodyFatPct": 19.7
+    "weight": 85.6,
+    "trend": 85.6,
+    "bodyFatPct": 25.7,
+    "bfTrend": 25.7,
+    "leanMassKg": 63.6,
+    "leanTrend": 63.6,
+    "plan": 86,
+    "planBf": 26.1,
+    "planLean": 63.6
    },
    {
     "date": "2026-09-19",
-    "weight": 75.2,
-    "trend": 74.69,
-    "plan": 74.96,
-    "bodyFatPct": 19.6
+    "weight": 86.3,
+    "trend": 85.71,
+    "bodyFatPct": 25.7,
+    "bfTrend": 25.7,
+    "leanMassKg": 64.12,
+    "leanTrend": 63.65,
+    "plan": 85.99,
+    "planBf": 26.08,
+    "planLean": 63.61
    },
    {
     "date": "2026-09-20",
-    "weight": 75.1,
-    "trend": 74.75,
-    "plan": 74.93,
-    "bodyFatPct": 19.5
+    "weight": 86.2,
+    "trend": 85.78,
+    "bodyFatPct": 25.4,
+    "bfTrend": 25.67,
+    "leanMassKg": 64.31,
+    "leanTrend": 63.72,
+    "plan": 85.98,
+    "planBf": 26.06,
+    "planLean": 63.62
    },
    {
     "date": "2026-09-21",
-    "weight": 75.3,
-    "trend": 74.83,
-    "plan": 74.89,
-    "bodyFatPct": 19.9
+    "weight": 86.4,
+    "trend": 85.87,
+    "bodyFatPct": 26.1,
+    "bfTrend": 25.71,
+    "leanMassKg": 63.85,
+    "leanTrend": 63.73,
+    "plan": 85.97,
+    "planBf": 26.04,
+    "planLean": 63.63
    },
    {
     "date": "2026-09-22",
-    "weight": 74.6,
-    "trend": 74.8,
-    "plan": 74.86,
-    "bodyFatPct": 19.4
+    "weight": 85.8,
+    "trend": 85.86,
+    "bodyFatPct": 25.4,
+    "bfTrend": 25.68,
+    "leanMassKg": 64.01,
+    "leanTrend": 63.76,
+    "plan": 85.96,
+    "planBf": 26.02,
+    "planLean": 63.64
    },
    {
     "date": "2026-09-23",
-    "weight": 75.1,
-    "trend": 74.84,
-    "plan": 74.82,
-    "bodyFatPct": 19.4
+    "weight": 86.4,
+    "trend": 85.94,
+    "bodyFatPct": 25.4,
+    "bfTrend": 25.65,
+    "leanMassKg": 64.45,
+    "leanTrend": 63.83,
+    "plan": 85.95,
+    "planBf": 25.99,
+    "planLean": 63.65
    },
    {
     "date": "2026-09-24",
-    "weight": 74.8,
-    "trend": 74.84,
-    "plan": 74.78,
-    "bodyFatPct": 20
+    "weight": 86.1,
+    "trend": 85.97,
+    "bodyFatPct": 26.3,
+    "bfTrend": 25.72,
+    "leanMassKg": 63.46,
+    "leanTrend": 63.79,
+    "plan": 85.94,
+    "planBf": 25.97,
+    "planLean": 63.66
    },
    {
     "date": "2026-09-25",
-    "weight": 74.5,
-    "trend": 74.79,
-    "plan": 74.75,
-    "bodyFatPct": 19.7
+    "weight": 85.8,
+    "trend": 85.94,
+    "bodyFatPct": 25.9,
+    "bfTrend": 25.74,
+    "leanMassKg": 63.58,
+    "leanTrend": 63.77,
+    "plan": 85.93,
+    "planBf": 25.95,
+    "planLean": 63.67
    },
    {
     "date": "2026-09-26",
-    "weight": 74.8,
-    "trend": 74.79,
-    "plan": 74.71,
-    "bodyFatPct": 20.1
+    "weight": 86.1,
+    "trend": 85.96,
+    "bodyFatPct": 26.5,
+    "bfTrend": 25.81,
+    "leanMassKg": 63.28,
+    "leanTrend": 63.72,
+    "plan": 85.92,
+    "planBf": 25.93,
+    "planLean": 63.68
    },
    {
     "date": "2026-09-27",
-    "weight": 74.8,
-    "trend": 74.79,
-    "plan": 74.68,
-    "bodyFatPct": 19.9
+    "weight": 86.2,
+    "trend": 86,
+    "bodyFatPct": 26.4,
+    "bfTrend": 25.87,
+    "leanMassKg": 63.44,
+    "leanTrend": 63.69,
+    "plan": 85.91,
+    "planBf": 25.91,
+    "planLean": 63.69
    },
    {
     "date": "2026-09-28",
-    "weight": 74,
-    "trend": 74.67,
-    "plan": 74.64,
-    "bodyFatPct": 18.9
+    "weight": 85.4,
+    "trend": 85.91,
+    "bodyFatPct": 25,
+    "bfTrend": 25.78,
+    "leanMassKg": 64.05,
+    "leanTrend": 63.73,
+    "plan": 85.9,
+    "planBf": 25.89,
+    "planLean": 63.7
    },
    {
     "date": "2026-09-29",
-    "weight": 74.3,
-    "trend": 74.62,
-    "plan": 74.6,
-    "bodyFatPct": 19.7
+    "weight": 85.7,
+    "trend": 85.88,
+    "bodyFatPct": 26.1,
+    "bfTrend": 25.82,
+    "leanMassKg": 63.33,
+    "leanTrend": 63.69,
+    "plan": 85.89,
+    "planBf": 25.87,
+    "planLean": 63.71
    },
    {
     "date": "2026-09-30",
-    "weight": 73.9,
-    "trend": 74.51,
-    "plan": 74.57,
-    "bodyFatPct": 18.9
+    "weight": 85.4,
+    "trend": 85.81,
+    "bodyFatPct": 25.1,
+    "bfTrend": 25.74,
+    "leanMassKg": 63.96,
+    "leanTrend": 63.72,
+    "plan": 85.88,
+    "planBf": 25.85,
+    "planLean": 63.72
    },
    {
     "date": "2026-10-01",
-    "weight": 74,
-    "trend": 74.43,
-    "plan": 74.53,
-    "bodyFatPct": 19.5
+    "weight": 85.6,
+    "trend": 85.78,
+    "bodyFatPct": 26,
+    "bfTrend": 25.77,
+    "leanMassKg": 63.34,
+    "leanTrend": 63.68,
+    "plan": 85.87,
+    "planBf": 25.83,
+    "planLean": 63.73
    },
    {
     "date": "2026-10-02",
-    "weight": 74.6,
-    "trend": 74.46,
-    "plan": 74.49,
-    "bodyFatPct": 19.3
+    "weight": 86.2,
+    "trend": 85.84,
+    "bodyFatPct": 25.7,
+    "bfTrend": 25.76,
+    "leanMassKg": 64.05,
+    "leanTrend": 63.72,
+    "plan": 85.86,
+    "planBf": 25.8,
+    "planLean": 63.74
    },
    {
     "date": "2026-10-03",
-    "weight": 74,
-    "trend": 74.39,
-    "plan": 74.46,
-    "bodyFatPct": 19.1
+    "weight": 85.6,
+    "trend": 85.8,
+    "bodyFatPct": 25.5,
+    "bfTrend": 25.74,
+    "leanMassKg": 63.77,
+    "leanTrend": 63.72,
+    "plan": 85.85,
+    "planBf": 25.78,
+    "planLean": 63.75
    },
    {
     "date": "2026-10-04",
-    "weight": 74.3,
-    "trend": 74.38,
-    "plan": 74.42,
-    "bodyFatPct": 18.8
+    "weight": 86,
+    "trend": 85.83,
+    "bodyFatPct": 25.1,
+    "bfTrend": 25.67,
+    "leanMassKg": 64.41,
+    "leanTrend": 63.79,
+    "plan": 85.84,
+    "planBf": 25.76,
+    "planLean": 63.76
    },
    {
     "date": "2026-10-05",
     "weight": null,
-    "trend": 74.38,
-    "plan": 74.39,
-    "bodyFatPct": null
+    "trend": 85.83,
+    "bodyFatPct": null,
+    "bfTrend": 25.67,
+    "leanMassKg": null,
+    "leanTrend": 63.79,
+    "plan": 85.83,
+    "planBf": 25.74,
+    "planLean": 63.78
    },
    {
     "date": "2026-10-06",
-    "weight": 73.6,
-    "trend": 74.26,
-    "plan": 74.35,
-    "bodyFatPct": 18.8
+    "weight": 85.4,
+    "trend": 85.77,
+    "bodyFatPct": 25.1,
+    "bfTrend": 25.62,
+    "leanMassKg": 63.96,
+    "leanTrend": 63.81,
+    "plan": 85.82,
+    "planBf": 25.72,
+    "planLean": 63.79
    },
    {
     "date": "2026-10-07",
-    "weight": 74.3,
-    "trend": 74.27,
-    "plan": 74.31,
-    "bodyFatPct": 18.6
+    "weight": 86,
+    "trend": 85.8,
+    "bodyFatPct": 24.9,
+    "bfTrend": 25.54,
+    "leanMassKg": 64.59,
+    "leanTrend": 63.89,
+    "plan": 85.81,
+    "planBf": 25.7,
+    "planLean": 63.8
    },
    {
     "date": "2026-10-08",
-    "weight": 74.1,
-    "trend": 74.24,
-    "plan": 74.28,
-    "bodyFatPct": 19
+    "weight": 85.9,
+    "trend": 85.82,
+    "bodyFatPct": 25.5,
+    "bfTrend": 25.54,
+    "leanMassKg": 64,
+    "leanTrend": 63.9,
+    "plan": 85.8,
+    "planBf": 25.68,
+    "planLean": 63.81
    },
    {
     "date": "2026-10-09",
     "weight": null,
-    "trend": 74.24,
-    "plan": 74.24,
-    "bodyFatPct": null
+    "trend": 85.82,
+    "bodyFatPct": null,
+    "bfTrend": 25.54,
+    "leanMassKg": null,
+    "leanTrend": 63.9,
+    "plan": 85.79,
+    "planBf": 25.66,
+    "planLean": 63.82
    },
    {
     "date": "2026-10-10",
     "weight": null,
-    "trend": 74.24,
-    "plan": 74.21,
-    "bodyFatPct": null
+    "trend": 85.82,
+    "bodyFatPct": null,
+    "bfTrend": 25.54,
+    "leanMassKg": null,
+    "leanTrend": 63.9,
+    "plan": 85.78,
+    "planBf": 25.64,
+    "planLean": 63.83
    },
    {
     "date": "2026-10-11",
-    "weight": 73.7,
-    "trend": 74.16,
-    "plan": 74.17,
-    "bodyFatPct": 19.3
+    "weight": 85.7,
+    "trend": 85.8,
+    "bodyFatPct": 26,
+    "bfTrend": 25.59,
+    "leanMassKg": 63.42,
+    "leanTrend": 63.85,
+    "plan": 85.77,
+    "planBf": 25.61,
+    "planLean": 63.84
    },
    {
     "date": "2026-10-12",
-    "weight": 73.6,
-    "trend": 74.08,
-    "plan": 74.13,
-    "bodyFatPct": 19
+    "weight": 85.6,
+    "trend": 85.77,
+    "bodyFatPct": 25.6,
+    "bfTrend": 25.59,
+    "leanMassKg": 63.69,
+    "leanTrend": 63.83,
+    "plan": 85.76,
+    "planBf": 25.59,
+    "planLean": 63.85
    },
    {
     "date": "2026-10-13",
     "weight": null,
-    "trend": 74.08,
-    "plan": 74.1,
-    "bodyFatPct": null
+    "trend": 85.77,
+    "bodyFatPct": null,
+    "bfTrend": 25.59,
+    "leanMassKg": null,
+    "leanTrend": 63.83,
+    "plan": 85.76,
+    "planBf": 25.57,
+    "planLean": 63.86
    },
    {
     "date": "2026-10-14",
-    "weight": 73.1,
-    "trend": 73.93,
-    "plan": 74.06,
-    "bodyFatPct": 19.2
+    "weight": 85.1,
+    "trend": 85.67,
+    "bodyFatPct": 26,
+    "bfTrend": 25.63,
+    "leanMassKg": 62.97,
+    "leanTrend": 63.75,
+    "plan": 85.75,
+    "planBf": 25.55,
+    "planLean": 63.87
    },
    {
     "date": "2026-10-15",
-    "weight": 73.3,
-    "trend": 73.83,
-    "plan": 74.03,
-    "bodyFatPct": 18.3
+    "weight": 85.4,
+    "trend": 85.63,
+    "bodyFatPct": 24.9,
+    "bfTrend": 25.56,
+    "leanMassKg": 64.14,
+    "leanTrend": 63.79,
+    "plan": 85.74,
+    "planBf": 25.53,
+    "planLean": 63.88
    },
    {
     "date": "2026-10-16",
-    "weight": 73.1,
-    "trend": 73.72,
-    "plan": 73.99,
-    "bodyFatPct": 18.5
+    "weight": 85.2,
+    "trend": 85.56,
+    "bodyFatPct": 25.1,
+    "bfTrend": 25.51,
+    "leanMassKg": 63.81,
+    "leanTrend": 63.79,
+    "plan": 85.73,
+    "planBf": 25.51,
+    "planLean": 63.89
    },
    {
     "date": "2026-10-17",
     "weight": null,
-    "trend": 73.72,
-    "plan": 73.95,
-    "bodyFatPct": null
+    "trend": 85.56,
+    "bodyFatPct": null,
+    "bfTrend": 25.51,
+    "leanMassKg": null,
+    "leanTrend": 63.79,
+    "plan": 85.72,
+    "planBf": 25.49,
+    "planLean": 63.9
    },
    {
     "date": "2026-10-18",
-    "weight": 73.5,
-    "trend": 73.69,
-    "plan": 73.92,
-    "bodyFatPct": 18.1
+    "weight": 85.7,
+    "trend": 85.58,
+    "bodyFatPct": 24.7,
+    "bfTrend": 25.43,
+    "leanMassKg": 64.53,
+    "leanTrend": 63.86,
+    "plan": 85.71,
+    "planBf": 25.47,
+    "planLean": 63.91
    },
    {
     "date": "2026-10-19",
-    "weight": 73.4,
-    "trend": 73.65,
-    "plan": 73.88,
-    "bodyFatPct": 18.5
+    "weight": 85.7,
+    "trend": 85.6,
+    "bodyFatPct": 25.2,
+    "bfTrend": 25.41,
+    "leanMassKg": 64.1,
+    "leanTrend": 63.89,
+    "plan": 85.7,
+    "planBf": 25.44,
+    "planLean": 63.92
    },
    {
     "date": "2026-10-20",
-    "weight": 73.2,
-    "trend": 73.58,
-    "plan": 73.85,
-    "bodyFatPct": 18.5
+    "weight": 85.6,
+    "trend": 85.6,
+    "bodyFatPct": 25.3,
+    "bfTrend": 25.4,
+    "leanMassKg": 63.94,
+    "leanTrend": 63.89,
+    "plan": 85.69,
+    "planBf": 25.42,
+    "planLean": 63.93
    },
    {
     "date": "2026-10-21",
-    "weight": 73.2,
-    "trend": 73.52,
-    "plan": 73.81,
-    "bodyFatPct": 18.3
+    "weight": 85.6,
+    "trend": 85.6,
+    "bodyFatPct": 25,
+    "bfTrend": 25.36,
+    "leanMassKg": 64.2,
+    "leanTrend": 63.92,
+    "plan": 85.68,
+    "planBf": 25.4,
+    "planLean": 63.94
    },
    {
     "date": "2026-10-22",
-    "weight": 73.1,
-    "trend": 73.46,
-    "plan": 73.77,
-    "bodyFatPct": 18.8
+    "weight": 85.5,
+    "trend": 85.59,
+    "bodyFatPct": 25.8,
+    "bfTrend": 25.4,
+    "leanMassKg": 63.44,
+    "leanTrend": 63.88,
+    "plan": 85.67,
+    "planBf": 25.38,
+    "planLean": 63.95
    },
    {
     "date": "2026-10-23",
-    "weight": 72.7,
-    "trend": 73.35,
-    "plan": 73.74,
-    "bodyFatPct": 18.5
+    "weight": 85.2,
+    "trend": 85.53,
+    "bodyFatPct": 25.4,
+    "bfTrend": 25.4,
+    "leanMassKg": 63.56,
+    "leanTrend": 63.84,
+    "plan": 85.66,
+    "planBf": 25.36,
+    "planLean": 63.96
    },
    {
     "date": "2026-10-24",
-    "weight": 73,
-    "trend": 73.29,
-    "plan": 73.7,
-    "bodyFatPct": 18.6
+    "weight": 85.5,
+    "trend": 85.52,
+    "bodyFatPct": 25.5,
+    "bfTrend": 25.41,
+    "leanMassKg": 63.7,
+    "leanTrend": 63.83,
+    "plan": 85.65,
+    "planBf": 25.34,
+    "planLean": 63.97
    },
    {
     "date": "2026-10-25",
-    "weight": 72.8,
-    "trend": 73.22,
-    "plan": 73.66,
-    "bodyFatPct": 18.6
+    "weight": 85.4,
+    "trend": 85.51,
+    "bodyFatPct": 25.5,
+    "bfTrend": 25.42,
+    "leanMassKg": 63.62,
+    "leanTrend": 63.81,
+    "plan": 85.64,
+    "planBf": 25.32,
+    "planLean": 63.98
    },
    {
     "date": "2026-10-26",
-    "weight": 73,
-    "trend": 73.19,
-    "plan": 73.63,
-    "bodyFatPct": 18.5
+    "weight": 85.5,
+    "trend": 85.5,
+    "bodyFatPct": 25.5,
+    "bfTrend": 25.43,
+    "leanMassKg": 63.7,
+    "leanTrend": 63.8,
+    "plan": 85.63,
+    "planBf": 25.3,
+    "planLean": 63.99
    },
    {
     "date": "2026-10-27",
-    "weight": 73.1,
-    "trend": 73.17,
-    "plan": 73.59,
-    "bodyFatPct": 18
+    "weight": 85.7,
+    "trend": 85.53,
+    "bodyFatPct": 24.9,
+    "bfTrend": 25.37,
+    "leanMassKg": 64.36,
+    "leanTrend": 63.85,
+    "plan": 85.62,
+    "planBf": 25.28,
+    "planLean": 64
    },
    {
     "date": "2026-10-28",
-    "weight": 72.2,
-    "trend": 73.03,
-    "plan": 73.56,
-    "bodyFatPct": 18.1
+    "weight": 84.8,
+    "trend": 85.42,
+    "bodyFatPct": 25.1,
+    "bfTrend": 25.35,
+    "leanMassKg": 63.52,
+    "leanTrend": 63.82,
+    "plan": 85.61,
+    "planBf": 25.25,
+    "planLean": 64.01
    },
    {
     "date": "2026-10-29",
-    "weight": 72.9,
-    "trend": 73.01,
-    "plan": 73.52,
-    "bodyFatPct": 17.4
+    "weight": 85.6,
+    "trend": 85.45,
+    "bodyFatPct": 24.1,
+    "bfTrend": 25.22,
+    "leanMassKg": 64.97,
+    "leanTrend": 63.93,
+    "plan": 85.6,
+    "planBf": 25.23,
+    "planLean": 64.02
    }
   ],
   "daily": [
    {
     "date": "2026-10-02",
-    "kcal": 2026,
-    "proteinG": 118,
+    "kcal": 2226,
+    "proteinG": 148,
     "sleepMinutes": 399,
     "steps": 6710,
     "strength": 1,
@@ -748,8 +999,8 @@
    },
    {
     "date": "2026-10-03",
-    "kcal": 2172,
-    "proteinG": 107,
+    "kcal": 2372,
+    "proteinG": 137,
     "sleepMinutes": 371,
     "steps": 9924,
     "strength": 0,
@@ -757,17 +1008,17 @@
    },
    {
     "date": "2026-10-04",
-    "kcal": 2441,
-    "proteinG": 116,
+    "kcal": 2641,
+    "proteinG": 146,
     "sleepMinutes": 445,
     "steps": 9562,
-    "strength": 0,
+    "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-05",
-    "kcal": 2071,
-    "proteinG": 97,
+    "kcal": 2271,
+    "proteinG": 127,
     "sleepMinutes": 457,
     "steps": 7626,
     "strength": 1,
@@ -775,8 +1026,8 @@
    },
    {
     "date": "2026-10-06",
-    "kcal": 2099,
-    "proteinG": 152,
+    "kcal": 2299,
+    "proteinG": 182,
     "sleepMinutes": 381,
     "steps": 8286,
     "strength": 1,
@@ -784,26 +1035,26 @@
    },
    {
     "date": "2026-10-07",
-    "kcal": 2193,
-    "proteinG": 131,
+    "kcal": 2393,
+    "proteinG": 161,
     "sleepMinutes": 430,
     "steps": 6210,
-    "strength": 0,
-    "cardio": 1
-   },
-   {
-    "date": "2026-10-08",
-    "kcal": 2255,
-    "proteinG": 104,
-    "sleepMinutes": 347,
-    "steps": 5347,
     "strength": 1,
     "cardio": 0
    },
    {
+    "date": "2026-10-08",
+    "kcal": 2455,
+    "proteinG": 134,
+    "sleepMinutes": 347,
+    "steps": 5347,
+    "strength": 0,
+    "cardio": 0
+   },
+   {
     "date": "2026-10-09",
-    "kcal": 2238,
-    "proteinG": 118,
+    "kcal": 2438,
+    "proteinG": 148,
     "sleepMinutes": 404,
     "steps": 7004,
     "strength": 1,
@@ -811,26 +1062,26 @@
    },
    {
     "date": "2026-10-10",
-    "kcal": 2290,
-    "proteinG": 111,
+    "kcal": 2490,
+    "proteinG": 141,
     "sleepMinutes": 436,
     "steps": 7442,
-    "strength": 0,
-    "cardio": 1
+    "strength": 1,
+    "cardio": 0
    },
    {
     "date": "2026-10-11",
-    "kcal": 2138,
-    "proteinG": 148,
+    "kcal": 2338,
+    "proteinG": 178,
     "sleepMinutes": 456,
     "steps": 7504,
-    "strength": 0,
+    "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-12",
-    "kcal": 1928,
-    "proteinG": 141,
+    "kcal": 2128,
+    "proteinG": 171,
     "sleepMinutes": 410,
     "steps": 7265,
     "strength": 1,
@@ -838,8 +1089,8 @@
    },
    {
     "date": "2026-10-13",
-    "kcal": 2048,
-    "proteinG": 154,
+    "kcal": 2248,
+    "proteinG": 184,
     "sleepMinutes": 456,
     "steps": 6635,
     "strength": 1,
@@ -847,26 +1098,26 @@
    },
    {
     "date": "2026-10-14",
-    "kcal": 1938,
-    "proteinG": 124,
+    "kcal": 2138,
+    "proteinG": 154,
     "sleepMinutes": 429,
     "steps": 6351,
-    "strength": 0,
-    "cardio": 1
-   },
-   {
-    "date": "2026-10-15",
-    "kcal": 2225,
-    "proteinG": 125,
-    "sleepMinutes": 391,
-    "steps": 6444,
     "strength": 1,
     "cardio": 0
    },
    {
+    "date": "2026-10-15",
+    "kcal": 2425,
+    "proteinG": 155,
+    "sleepMinutes": 391,
+    "steps": 6444,
+    "strength": 0,
+    "cardio": 0
+   },
+   {
     "date": "2026-10-16",
-    "kcal": 1922,
-    "proteinG": 131,
+    "kcal": 2122,
+    "proteinG": 161,
     "sleepMinutes": 369,
     "steps": 7772,
     "strength": 1,
@@ -874,26 +1125,26 @@
    },
    {
     "date": "2026-10-17",
-    "kcal": 2009,
-    "proteinG": 137,
+    "kcal": 2209,
+    "proteinG": 167,
     "sleepMinutes": 373,
     "steps": 5140,
-    "strength": 0,
-    "cardio": 1
+    "strength": 1,
+    "cardio": 0
    },
    {
     "date": "2026-10-18",
-    "kcal": 2013,
-    "proteinG": 136,
+    "kcal": 2213,
+    "proteinG": 166,
     "sleepMinutes": 386,
     "steps": 8605,
-    "strength": 0,
+    "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-19",
-    "kcal": 2443,
-    "proteinG": 112,
+    "kcal": 2643,
+    "proteinG": 142,
     "sleepMinutes": 401,
     "steps": 7746,
     "strength": 0,
@@ -901,8 +1152,8 @@
    },
    {
     "date": "2026-10-20",
-    "kcal": 2258,
-    "proteinG": 116,
+    "kcal": 2458,
+    "proteinG": 146,
     "sleepMinutes": 412,
     "steps": 6791,
     "strength": 1,
@@ -910,26 +1161,26 @@
    },
    {
     "date": "2026-10-21",
-    "kcal": 1936,
-    "proteinG": 121,
+    "kcal": 2136,
+    "proteinG": 151,
     "sleepMinutes": 392,
     "steps": 9240,
-    "strength": 0,
-    "cardio": 1
-   },
-   {
-    "date": "2026-10-22",
-    "kcal": 2296,
-    "proteinG": 117,
-    "sleepMinutes": 406,
-    "steps": 5808,
     "strength": 1,
     "cardio": 0
    },
    {
+    "date": "2026-10-22",
+    "kcal": 2496,
+    "proteinG": 147,
+    "sleepMinutes": 406,
+    "steps": 5808,
+    "strength": 0,
+    "cardio": 0
+   },
+   {
     "date": "2026-10-23",
-    "kcal": 2127,
-    "proteinG": 129,
+    "kcal": 2327,
+    "proteinG": 159,
     "sleepMinutes": 427,
     "steps": 8797,
     "strength": 1,
@@ -937,26 +1188,26 @@
    },
    {
     "date": "2026-10-24",
-    "kcal": 2413,
-    "proteinG": 148,
+    "kcal": 2613,
+    "proteinG": 178,
     "sleepMinutes": 413,
     "steps": 6432,
-    "strength": 0,
-    "cardio": 1
+    "strength": 1,
+    "cardio": 0
    },
    {
     "date": "2026-10-25",
-    "kcal": 1971,
-    "proteinG": 115,
+    "kcal": 2171,
+    "proteinG": 145,
     "sleepMinutes": 384,
     "steps": 8219,
-    "strength": 0,
+    "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-26",
-    "kcal": 2066,
-    "proteinG": 148,
+    "kcal": 2266,
+    "proteinG": 178,
     "sleepMinutes": 343,
     "steps": 6709,
     "strength": 1,
@@ -964,8 +1215,8 @@
    },
    {
     "date": "2026-10-27",
-    "kcal": 1970,
-    "proteinG": 145,
+    "kcal": 2170,
+    "proteinG": 175,
     "sleepMinutes": 355,
     "steps": 5148,
     "strength": 1,
@@ -973,12 +1224,12 @@
    },
    {
     "date": "2026-10-28",
-    "kcal": 2119,
-    "proteinG": 142,
+    "kcal": 2319,
+    "proteinG": 172,
     "sleepMinutes": 449,
     "steps": 6265,
-    "strength": 0,
-    "cardio": 1
+    "strength": 1,
+    "cardio": 0
    },
    {
     "date": "2026-10-29",

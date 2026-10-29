@@ -18,12 +18,50 @@ export function trendSeries(records, from, to, alpha = 0.15) {
   const byDate = new Map(records.map((r) => [r.date, r]));
   const out = [];
   let t = null;
+  let bfT = null;
+  let leanT = null;
+  const bfAlpha = 0.1; // 体組成計の体脂肪率は日々のブレが大きいので、よりなだらかに
   for (const d of dateRange(from, to)) {
     const w = byDate.get(d)?.weight?.kg ?? null;
+    const bf = byDate.get(d)?.weight?.bodyFatPct ?? null;
     if (w !== null) t = t === null ? w : t + alpha * (w - t);
-    out.push({ date: d, weight: w, trend: t === null ? null : round(t, 2) });
+    if (bf !== null) bfT = bfT === null ? bf : bfT + bfAlpha * (bf - bfT);
+    const lean = w !== null && bf !== null ? w * (1 - bf / 100) : null;
+    if (lean !== null) leanT = leanT === null ? lean : leanT + bfAlpha * (lean - leanT);
+    out.push({
+      date: d,
+      weight: w,
+      trend: t === null ? null : round(t, 2),
+      bodyFatPct: bf,
+      bfTrend: bfT === null ? null : round(bfT, 2),
+      leanMassKg: lean === null ? null : round(lean, 2),
+      leanTrend: leanT === null ? null : round(leanT, 2),
+    });
   }
   return out;
+}
+
+/**
+ * 目標設定の補完。recomp（筋肉を増やしつつ体脂肪率を下げる）では
+ * 目標体重 = 目標除脂肪体重 ÷ (1 − 目標体脂肪率) で決まる
+ */
+export function normalizeGoal(config) {
+  const p = config.profile;
+  const g = { mode: 'cut', ...config.goal };
+  const startLean = p.startBodyFatPct != null ? p.startWeightKg * (1 - p.startBodyFatPct / 100) : null;
+  if (g.mode === 'recomp') {
+    if (g.targetLeanMassKg == null && startLean !== null) g.targetLeanMassKg = round(startLean + (g.leanGainKg ?? 2), 1);
+    if (g.targetWeightKg == null && g.targetLeanMassKg != null) g.targetWeightKg = round(g.targetLeanMassKg / (1 - g.targetBodyFatPct / 100), 1);
+  }
+  return { ...config, goal: g, profile: { ...p, startLeanMassKg: startLean === null ? null : round(startLean, 1) } };
+}
+
+export function plannedLeanMass(config, date) {
+  const { startDate, startLeanMassKg } = config.profile;
+  const { targetDate, targetLeanMassKg } = config.goal;
+  if (startLeanMassKg == null || targetLeanMassKg == null) return null;
+  const f = clamp(daysBetween(startDate, date) / daysBetween(startDate, targetDate), 0, 1);
+  return round(startLeanMassKg + (targetLeanMassKg - startLeanMassKg) * f, 2);
 }
 
 /** 計画ライン：開始日の体重→目標日の目標体重を直線で結ぶ */
@@ -40,7 +78,7 @@ export function plannedBodyFat(config, date) {
   const { targetDate, targetBodyFatPct } = config.goal;
   if (startBodyFatPct == null || targetBodyFatPct == null) return null;
   const f = clamp(daysBetween(startDate, date) / daysBetween(startDate, targetDate), 0, 1);
-  return round(startBodyFatPct + (targetBodyFatPct - startBodyFatPct) * f, 1);
+  return round(startBodyFatPct + (targetBodyFatPct - startBodyFatPct) * f, 2);
 }
 
 /**
@@ -71,11 +109,22 @@ export function estimateTdee(config, records, trend, today) {
 }
 
 /** 今日からゴールまでに必要な減量ペースと、1日のカロリー・PFC目標 */
-export function dailyTargets(config, trendWeight, tdee, today) {
+export function dailyTargets(config, trendWeight, tdee, today, bodyFatPct = null) {
   const daysLeft = Math.max(1, daysBetween(today, config.goal.targetDate));
-  const remainingKg = trendWeight - config.goal.targetWeightKg;
+  const weeksLeft = daysLeft / 7;
   const maxRate = (config.goal.maxWeeklyLossPct / 100) * trendWeight;
-  const neededRate = remainingKg > 0 ? remainingKg / (daysLeft / 7) : 0;
+  let neededRate;
+  let fatToLoseKg = null;
+  if (config.goal.mode === 'recomp' && bodyFatPct != null && config.goal.targetLeanMassKg != null) {
+    // 落とすのは脂肪だけ。脂肪1kg = 7700kcal（筋肉が増える分の体重増は不足カロリーに含めない）
+    const bf = config.goal.targetBodyFatPct;
+    const fatTarget = (config.goal.targetLeanMassKg * bf) / (100 - bf);
+    fatToLoseKg = trendWeight * (bodyFatPct / 100) - fatTarget;
+    neededRate = Math.max(0, fatToLoseKg / weeksLeft);
+  } else {
+    const remainingKg = trendWeight - config.goal.targetWeightKg;
+    neededRate = remainingKg > 0 ? remainingKg / weeksLeft : 0;
+  }
   const rate = Math.min(neededRate, maxRate);
   const deficit = (rate * KCAL_PER_KG_FAT) / 7;
 
@@ -96,6 +145,7 @@ export function dailyTargets(config, trendWeight, tdee, today) {
     weeklyRateKg: round(rate, 2),
     neededWeeklyRateKg: round(neededRate, 2),
     maxWeeklyRateKg: round(maxRate, 2),
+    fatToLoseKg: round(fatToLoseKg, 1),
     deficit: round(deficit),
     goalAtRisk: neededRate > maxRate * 1.001,
     kcalFloored: tdee - deficit < floor,
@@ -103,23 +153,44 @@ export function dailyTargets(config, trendWeight, tdee, today) {
   };
 }
 
+/** 曜日ごとのカロリー配分：重い日に多め、軽い日・休養日に少なめ（週の合計は同じ） */
+export function dayKcalAdjust(config, intensity, kind) {
+  const bonus = config.daily.heavyDayBonusKcal ?? 0;
+  if (!bonus) return 0;
+  const days = Object.values(config.program ?? {}).map((v) => String(v));
+  const heavy = days.filter((v) => v.endsWith(':heavy')).length;
+  const others = days.length - heavy;
+  if (intensity === 'heavy') return bonus;
+  if (!others) return 0;
+  return -Math.round((bonus * heavy) / others / 10) * 10;
+}
+
 /** マイルストーンに計画上の体重・体脂肪率を付けて、現在の進捗を判定 */
 export function milestones(config, trend, today) {
   const list = config.milestones?.length ? config.milestones : [{ date: config.goal.targetDate, label: 'ゴール' }];
-  const current = trend.at(-1)?.trend ?? null;
   return list.map((m) => {
     const targetKg = m.weightKg ?? plannedWeight(config, m.date);
     const targetBf = m.bodyFatPct ?? plannedBodyFat(config, m.date);
+    const targetLean = m.leanMassKg ?? plannedLeanMass(config, m.date);
     const passed = m.date < today;
-    const atDate = passed ? trend.find((p) => p.date === m.date)?.trend ?? null : null;
-    const ref = passed ? atDate : current;
+    const at = passed ? trend.find((p) => p.date === m.date) ?? null : null;
+    let achieved;
+    if (config.goal.mode === 'recomp') {
+      // 体脂肪率が目標以下 かつ 除脂肪体重が目標の-0.5kg以内なら達成
+      achieved = at?.bfTrend != null && at.bfTrend <= targetBf + 0.3 && (at.leanTrend == null || targetLean == null || at.leanTrend >= targetLean - 0.5);
+    } else {
+      achieved = at?.trend != null && at.trend <= targetKg + 0.3;
+    }
     return {
       ...m,
       targetWeightKg: round(targetKg, 1),
       targetBodyFatPct: targetBf,
+      targetLeanMassKg: round(targetLean, 1),
       daysLeft: daysBetween(today, m.date),
-      status: passed ? (ref !== null && ref <= targetKg + 0.3 ? 'achieved' : 'missed') : 'upcoming',
-      actualWeightKg: atDate,
+      status: passed ? (achieved ? 'achieved' : 'missed') : 'upcoming',
+      actualWeightKg: at?.trend ?? null,
+      actualBodyFatPct: at?.bfTrend ?? null,
+      actualLeanMassKg: at?.leanTrend ?? null,
     };
   });
 }

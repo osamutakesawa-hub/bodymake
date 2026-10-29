@@ -2,12 +2,19 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseNumber, parseDurationMinutes, weekStart } from '../scripts/lib/util.mjs';
 import { normalizeDay, mergeDay, payloadDays, parseWorkouts } from '../scripts/lib/ingest.mjs';
-import { dailyTargets, bmr } from '../scripts/lib/plan.mjs';
-import { classifyWorkout, todaysSession } from '../scripts/lib/training.mjs';
+import { dailyTargets, bmr, normalizeGoal, dayKcalAdjust } from '../scripts/lib/plan.mjs';
+import { classifyWorkout, todaysSession, isDeloadWeek, weekPlan } from '../scripts/lib/training.mjs';
 import { analyze } from '../scripts/lib/analyze.mjs';
 import fs from 'node:fs';
 
-const config = JSON.parse(fs.readFileSync(new URL('../config/goals.json', import.meta.url)));
+const raw = JSON.parse(fs.readFileSync(new URL('../config/goals.json', import.meta.url)));
+const config = normalizeGoal(raw);
+// 減量モードの検証用
+const cutConfig = normalizeGoal({
+  ...raw,
+  profile: { ...raw.profile, age: 35, heightCm: 172, startWeightKg: 75, startBodyFatPct: 20, startDate: '2026-11-01' },
+  goal: { mode: 'cut', targetDate: '2027-03-31', targetWeightKg: 68, targetBodyFatPct: 12, maxWeeklyLossPct: 1.0 },
+});
 
 test('ショートカットの値を数値にする', () => {
   assert.equal(parseNumber('72.4 kg'), 72.4);
@@ -45,21 +52,54 @@ test('ワークアウト種別の判定', () => {
   assert.equal(parseWorkouts([{ type: 'Running', duration: 1800 }])[0].minutes, 30);
 });
 
-test('目標カロリーは安全なペースと下限を守る', () => {
-  const t = dailyTargets(config, 75, 2500, '2026-11-01');
+test('減量モード：目標カロリーは安全なペースと下限を守る', () => {
+  const t = dailyTargets(cutConfig, 75, 2500, '2026-11-01');
   assert.ok(t.kcal < 2500 && t.kcal > 1500);
   assert.equal(t.proteinG, 150);
-  // 非現実的な目標 → 上限ペースに制限し警告フラグ
-  const hard = dailyTargets({ ...config, goal: { ...config.goal, targetWeightKg: 50 } }, 75, 2500, '2026-11-01');
+  const hard = dailyTargets({ ...cutConfig, goal: { ...cutConfig.goal, targetWeightKg: 50 } }, 75, 2500, '2026-11-01');
   assert.equal(hard.goalAtRisk, true);
-  assert.ok(hard.kcal >= bmr(config.profile, 75) - 1);
+  assert.ok(hard.kcal >= bmr(cutConfig.profile, 75) - 1);
 });
 
-test('寝不足の日は筋トレのボリュームを落とす', () => {
-  const s = todaysSession(config, '2026-11-02', { weekStrengthDone: 0, plannedStrengthLeft: 4, lastSleepMinutes: 300, doneToday: [] });
-  assert.equal(s.kind, 'strength');
-  assert.match(s.items[0].prescription, /^2セット/);
-  assert.equal(s.adjustments.length, 1);
+test('リコンプ：目標体重は除脂肪体重と目標体脂肪率から決まる', () => {
+  // 86kg × 26.1% → 除脂肪 63.6kg、+2kg → 65.6kg、22% → 84.1kg
+  assert.equal(config.profile.startLeanMassKg, 63.6);
+  assert.equal(config.goal.targetLeanMassKg, 65.6);
+  assert.equal(config.goal.targetWeightKg, 84.1);
+  // 落とすのは脂肪だけ：22.4kg → 18.5kg
+  const t = dailyTargets(config, 86, 2600, '2026-10-29', 26.1);
+  assert.equal(t.fatToLoseKg, 3.9);
+  assert.ok(t.deficit > 150 && t.deficit < 250, `deficit=${t.deficit}`);
+  assert.equal(t.goalAtRisk, false);
+});
+
+test('重い日は多め・軽い日と休養日は少なめ（週の合計は同じ）', () => {
+  const week = weekPlan(config, '2026-11-02');
+  const sum = week.reduce((n, d) => n + dayKcalAdjust(config, d.intensity, d.kind), 0);
+  assert.equal(dayKcalAdjust(config, 'heavy', 'strength'), 150);
+  assert.ok(Math.abs(sum) <= 40, `sum=${sum}`);
+});
+
+test('週の予定：月〜水は軽い日、木は休み、金〜日は重い日', () => {
+  const week = weekPlan(config, '2026-11-02');
+  assert.deepEqual(week.map((d) => d.intensity === 'normal' ? d.key : d.intensity), ['light', 'light', 'light', 'rest', 'heavy', 'heavy', 'heavy']);
+});
+
+test('寝不足の重い日はボリュームを落とす・デロード週', () => {
+  const ctx = { weekStrengthDone: 0, plannedStrengthLeft: 3, doneToday: [] };
+  const fri = todaysSession(config, '2026-11-06', { ...ctx, lastSleepMinutes: 300 });
+  assert.equal(fri.intensity, 'heavy');
+  assert.match(fri.items[0].prescription, /^2セット/);
+  assert.equal(fri.adjustments.length, 1);
+  const light = todaysSession(config, '2026-11-02', { ...ctx, lastSleepMinutes: 450 });
+  assert.match(light.items[0].prescription, /12〜15回/);
+  // 開始週（10/26の週）を1週目として、6週目（11/30の週）が回復週
+  assert.equal(isDeloadWeek(config, '2026-11-29'), false);
+  assert.equal(isDeloadWeek(config, '2026-11-30'), true);
+  assert.equal(isDeloadWeek(config, '2026-12-07'), false);
+  // 木曜の休養日は回数不足でも振り替えない
+  const thu = todaysSession(config, '2026-11-05', { weekStrengthDone: 0, plannedStrengthLeft: 3, doneToday: [], lastSleepMinutes: null });
+  assert.equal(thu.kind, 'rest');
 });
 
 test('記録がなくてもダッシュボードを生成できる', () => {

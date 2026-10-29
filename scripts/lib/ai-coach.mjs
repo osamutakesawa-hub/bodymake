@@ -16,7 +16,8 @@ const SCHEMA = {
 };
 
 const SYSTEM = `あなたは日本語で指導するボディメイクのパーソナルトレーナー兼管理栄養士です。
-ユーザーは3月末の目標に向けて減量・筋量維持に取り組んでいます。
+ユーザーの目標は JSON の goal にあります（mode が recomp なら「筋肉を最大限増やしつつ体脂肪率を下げる」、cut なら「筋量を守りながら減量」）。
+recomp では体重の増減ではなく、体脂肪率と除脂肪体重のトレンドで評価してください。年齢（profile.age）に合った回復と関節への配慮も入れてください。
 渡される JSON は、iPhone のヘルスケアから集計した記録と、ルールベースで算出済みの目標値・アドバイスです。
 - 目標カロリーやPFCの数値はJSONの targets を正とし、勝手に別の数値を作らないこと
 - 抽象論ではなく「何を・どれだけ・いつ」が分かる行動に落とすこと（日本のコンビニや定食でも実行できる例を優先）
@@ -26,6 +27,7 @@ const SYSTEM = `あなたは日本語で指導するボディメイクのパー�
 function summarize(d) {
   return {
     today: d.today,
+    profile: d.profile,
     current: d.current,
     goal: d.goal,
     targets: d.targets,

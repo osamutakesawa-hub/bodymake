@@ -1,6 +1,6 @@
 // 日次レコード + 目標設定 → ダッシュボード用データ
 import { addDays, daysBetween, localDate, mean, round, weekStart, dateRange } from './util.mjs';
-import { trendSeries, plannedWeight, plannedBodyFat, estimateTdee, dailyTargets, milestones } from './plan.mjs';
+import { trendSeries, plannedWeight, plannedBodyFat, plannedLeanMass, normalizeGoal, estimateTdee, dailyTargets, dayKcalAdjust, milestones } from './plan.mjs';
 import { classifyWorkout, todaysSession, plannedStrengthLeft, weekPlan } from './training.mjs';
 import { buildAdvice, mealPlan } from './advice.mjs';
 
@@ -17,7 +17,9 @@ function workoutKinds(rec) {
   return (rec?.workouts ?? []).map((w) => w.kind ?? classifyWorkout(w.type));
 }
 
-export function analyze(config, records, now = new Date(), { demo = false } = {}) {
+export function analyze(rawConfig, records, now = new Date(), { demo = false } = {}) {
+  const config = normalizeGoal(rawConfig);
+  const recomp = config.goal.mode === 'recomp';
   const tz = config.timezone ?? 'Asia/Tokyo';
   const today = localDate(now, tz);
   const sorted = [...records].filter((r) => r.date <= today).sort((a, b) => a.date.localeCompare(b.date));
@@ -30,9 +32,11 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
   const lastWeigh = weighIns.at(-1) ?? null;
   const trendWeight = trend.at(-1)?.trend ?? config.profile.startWeightKg;
   const lastBf = [...sorted].reverse().find((r) => r.weight?.bodyFatPct)?.weight.bodyFatPct ?? null;
+  const bfNow = trend.at(-1)?.bfTrend ?? lastBf ?? config.profile.startBodyFatPct ?? null;
+  const leanNow = trend.at(-1)?.leanTrend ?? (bfNow != null ? trendWeight * (1 - bfNow / 100) : null);
 
   const energy = estimateTdee(config, sorted, trend, today);
-  const targets = dailyTargets(config, trendWeight, energy.tdee, today);
+  const targets = dailyTargets(config, trendWeight, energy.tdee, today, bfNow);
 
   // 直近14日のトレンドの傾き（kg/週）
   const t14 = trend.find((p) => p.date === addDays(today, -14))?.trend ?? null;
@@ -40,6 +44,13 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
   const projectedKg =
     recentRateKg !== null ? round(trendWeight + (recentRateKg / 7) * daysBetween(today, config.goal.targetDate), 1) : null;
   const achievableKg = round(trendWeight - targets.maxWeeklyRateKg * (targets.daysLeft / 7), 1);
+  // 体脂肪率（%/週）と除脂肪体重（kg/週）の直近14日の傾き
+  const p14 = trend.find((p) => p.date === addDays(today, -14));
+  const bfRate = p14?.bfTrend != null && bfNow != null && trend.at(-1)?.bfTrend != null ? round(((bfNow - p14.bfTrend) / 14) * 7, 2) : null;
+  const leanRate = p14?.leanTrend != null && trend.at(-1)?.leanTrend != null ? round(((leanNow - p14.leanTrend) / 14) * 7, 2) : null;
+  const weeksToGoal = daysBetween(today, config.goal.targetDate) / 7;
+  const projectedBf = bfRate !== null ? round(bfNow + bfRate * weeksToGoal, 1) : null;
+  const projectedLean = leanRate !== null ? round(leanNow + leanRate * weeksToGoal, 1) : null;
 
   // --- 7日集計 ---
   const last7 = dateRange(addDays(today, -6), today).map((d) => byDate.get(d));
@@ -64,7 +75,7 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
   const doneToday = workoutKinds(todayRec);
 
   const lastSleepMinutes = todayRec?.sleep?.minutes ?? null;
-  const stalled = recentRateKg !== null && targets.neededWeeklyRateKg > 0 && recentRateKg > -0.1;
+  const stalled = recomp ? bfRate !== null && targets.neededWeeklyRateKg > 0 && bfRate >= 0 : recentRateKg !== null && targets.neededWeeklyRateKg > 0 && recentRateKg > -0.1;
   const training = todaysSession(config, today, {
     weekStrengthDone: strengthDone - doneToday.filter((k) => k === 'strength').length,
     plannedStrengthLeft: plannedStrengthLeft(config, addDays(today, 1)) * (today === addDays(monday, 6) ? 0 : 1),
@@ -73,9 +84,23 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
     doneToday,
   });
 
+  // 今日だけのカロリー（重い日は多め・休養日は少なめ。週平均は targets.kcal）
+  const adj = dayKcalAdjust(config, training.intensity, training.kind);
+  targets.kcalToday = targets.kcal + adj;
+  targets.carbsToday = Math.max(0, targets.carbsG + Math.round(adj / 4));
+  targets.dayAdjustKcal = adj;
+
   const prevSunday = addDays(monday, -1);
-  const trendAtWeekStart = trend.find((p) => p.date === prevSunday)?.trend ?? null;
-  const weekChange = trendAtWeekStart !== null ? round(trendWeight - trendAtWeekStart, 2) : null;
+  const atWeekStart = trend.find((p) => p.date === prevSunday) ?? null;
+  const weekChange = atWeekStart?.trend != null ? round(trendWeight - atWeekStart.trend, 2) : null;
+  const weekBfChange = atWeekStart?.bfTrend != null && bfNow != null ? round(bfNow - atWeekStart.bfTrend, 2) : null;
+  const weekLeanChange = atWeekStart?.leanTrend != null && leanNow != null ? round(leanNow - atWeekStart.leanTrend, 2) : null;
+  const bfWeeklyTarget = recomp && config.profile.startBodyFatPct != null
+    ? round((config.goal.targetBodyFatPct - config.profile.startBodyFatPct) / (daysBetween(config.profile.startDate, config.goal.targetDate) / 7), 2)
+    : null;
+  const leanWeeklyTarget = recomp && config.goal.targetLeanMassKg != null && config.profile.startLeanMassKg != null
+    ? round((config.goal.targetLeanMassKg - config.profile.startLeanMassKg) / (daysBetween(config.profile.startDate, config.goal.targetDate) / 7), 2)
+    : null;
   const daysElapsed = weekDates.length;
   const weekKcal = mean(closedWeekRecs.map((r) => (r?.nutrition?.kcal > 800 ? r.nutrition.kcal : null)));
   const weekProtein = mean(closedWeekRecs.map((r) => (r?.nutrition?.kcal > 800 ? r.nutrition.proteinG ?? null : null)));
@@ -91,13 +116,18 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
     goals: [
       { key: 'strength', label: '筋トレ', actual: strengthDone, target: config.weekly.strengthSessions, unit: '回', status: strengthDone >= config.weekly.strengthSessions ? 'good' : 'pending' },
       { key: 'cardio', label: '有酸素', actual: cardioDone, target: config.weekly.cardioSessions, unit: '回', status: cardioDone >= config.weekly.cardioSessions ? 'good' : 'pending' },
-      { key: 'weight', label: '体重変化', actual: weekChange, target: -targets.weeklyRateKg, unit: 'kg', status: weekChange === null ? 'pending' : weekChange <= -targets.weeklyRateKg * (daysElapsed / 7) * 0.7 ? 'good' : weekChange <= 0 ? 'warning' : 'critical' },
+      ...(recomp
+        ? [
+            { key: 'bf', label: '体脂肪率の変化', actual: weekBfChange, target: bfWeeklyTarget, unit: '%', status: weekBfChange === null ? 'pending' : weekBfChange <= 0 ? 'good' : weekBfChange <= 0.3 ? 'warning' : 'critical' },
+            { key: 'lean', label: '除脂肪体重の変化', actual: weekLeanChange, target: leanWeeklyTarget, unit: 'kg', status: weekLeanChange === null ? 'pending' : weekLeanChange >= 0 ? 'good' : weekLeanChange >= -0.3 ? 'warning' : 'critical' },
+          ]
+        : [{ key: 'weight', label: '体重変化', actual: weekChange, target: -targets.weeklyRateKg, unit: 'kg', status: weekChange === null ? 'pending' : weekChange <= -targets.weeklyRateKg * (daysElapsed / 7) * 0.7 ? 'good' : weekChange <= 0 ? 'warning' : 'critical' }]),
       { key: 'kcal', label: '平均カロリー', actual: round(weekKcal, -1), target: targets.kcal, unit: 'kcal', status: status(weekKcal, targets.kcal, { mode: 'atMost' }) },
       { key: 'protein', label: '平均タンパク質', actual: round(weekProtein), target: targets.proteinG, unit: 'g', status: status(weekProtein, targets.proteinG) },
       { key: 'sleep', label: '平均睡眠', actual: round(weekSleep), target: targets.sleepMinutes, unit: 'min', status: status(weekSleep, targets.sleepMinutes, { tolerance: 0.07 }) },
       { key: 'steps', label: '平均歩数', actual: round(weekSteps, -1), target: targets.steps, unit: '歩', status: status(weekSteps, targets.steps, { tolerance: 0.2 }) },
       { key: 'weighins', label: '体重測定', actual: weighDays, target: daysElapsed, unit: '日', status: weighDays >= daysElapsed ? 'good' : weighDays >= daysElapsed - 1 ? 'warning' : 'critical' },
-    ],
+    ].filter((g) => g.target !== 0),
     plan: weekPlan(config, monday).map((d) => {
       const kinds = workoutKinds(byDate.get(d.date));
       return { ...d, done: d.kind === 'rest' ? null : kinds.includes(d.kind) || (d.kind === 'strength' && kinds.includes('strength')), logged: kinds, past: d.date < today, today: d.date === today };
@@ -109,10 +139,10 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
   const todayGoals = [
     { key: 'weighin', label: '体重測定', actual: todayRec?.weight?.kg ?? null, target: null, unit: 'kg', status: todayRec?.weight?.kg ? 'good' : 'pending' },
     { key: 'sleep', label: '睡眠（昨夜）', actual: lastSleepMinutes, target: targets.sleepMinutes, unit: 'min', status: status(lastSleepMinutes, targets.sleepMinutes, { tolerance: 0.1 }) },
-    { key: 'kcal', label: 'カロリー', actual: n.kcal ?? null, target: targets.kcal, unit: 'kcal', status: n.kcal == null ? 'pending' : n.kcal > targets.kcal * 1.1 ? 'critical' : n.kcal > targets.kcal * 1.03 ? 'warning' : n.kcal >= targets.kcal * 0.9 ? 'good' : 'pending' },
+    { key: 'kcal', label: 'カロリー', actual: n.kcal ?? null, target: targets.kcalToday, unit: 'kcal', status: n.kcal == null ? 'pending' : n.kcal > targets.kcalToday * 1.1 ? 'critical' : n.kcal > targets.kcalToday * 1.03 ? 'warning' : n.kcal >= targets.kcalToday * 0.9 ? 'good' : 'pending' },
     { key: 'protein', label: 'タンパク質', actual: n.proteinG ?? null, target: targets.proteinG, unit: 'g', status: n.proteinG == null ? 'pending' : n.proteinG >= targets.proteinG ? 'good' : 'pending' },
     { key: 'fat', label: '脂質', actual: n.fatG ?? null, target: targets.fatG, unit: 'g', status: n.fatG == null ? 'pending' : n.fatG > targets.fatG * 1.2 ? 'warning' : 'good' },
-    { key: 'carbs', label: '炭水化物', actual: n.carbsG ?? null, target: targets.carbsG, unit: 'g', status: n.carbsG == null ? 'pending' : n.carbsG > targets.carbsG * 1.2 ? 'warning' : 'good' },
+    { key: 'carbs', label: '炭水化物', actual: n.carbsG ?? null, target: targets.carbsToday, unit: 'g', status: n.carbsG == null ? 'pending' : n.carbsG > targets.carbsToday * 1.2 ? 'warning' : 'good' },
     { key: 'steps', label: '歩数', actual: todayRec?.activity?.steps ?? null, target: targets.steps, unit: '歩', status: (todayRec?.activity?.steps ?? 0) >= targets.steps ? 'good' : 'pending' },
     { key: 'training', label: 'トレーニング', actual: training.kind === 'rest' ? null : training.done ? 1 : 0, target: training.kind === 'rest' ? null : 1, unit: '', status: training.kind === 'rest' ? 'good' : training.done ? 'good' : 'pending', note: training.name },
   ];
@@ -121,15 +151,28 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
   const start = config.profile.startWeightKg;
   const goalKg = config.goal.targetWeightKg;
   const planToday = plannedWeight(config, today);
+  const startBf = config.profile.startBodyFatPct;
+  const bfProgress = recomp && startBf != null && bfNow != null && startBf !== config.goal.targetBodyFatPct
+    ? round(Math.max(0, Math.min(1, (startBf - bfNow) / (startBf - config.goal.targetBodyFatPct))) * 100)
+    : null;
   const goal = {
+    mode: config.goal.mode,
     targetDate: config.goal.targetDate,
+    targetLeanMassKg: config.goal.targetLeanMassKg ?? null,
+    startLeanMassKg: config.profile.startLeanMassKg ?? null,
+    plannedTodayLeanKg: plannedLeanMass(config, today),
+    projectedBodyFatPct: projectedBf,
+    projectedLeanMassKg: projectedLean,
+    deltaVsPlanBf: bfNow != null && plannedBodyFat(config, today) != null ? round(bfNow - plannedBodyFat(config, today), 1) : null,
+    deltaVsPlanLean: leanNow != null && plannedLeanMass(config, today) != null ? round(leanNow - plannedLeanMass(config, today), 1) : null,
+    remainingBf: bfNow != null ? round(bfNow - config.goal.targetBodyFatPct, 1) : null,
     targetWeightKg: goalKg,
     targetBodyFatPct: config.goal.targetBodyFatPct,
     startWeightKg: start,
     startBodyFatPct: config.profile.startBodyFatPct,
     daysLeft: daysBetween(today, config.goal.targetDate),
     weeksLeft: round(daysBetween(today, config.goal.targetDate) / 7, 1),
-    progressPct: start !== goalKg ? round(Math.max(0, Math.min(1, (start - trendWeight) / (start - goalKg))) * 100) : 100,
+    progressPct: bfProgress !== null ? bfProgress : start !== goalKg ? round(Math.max(0, Math.min(1, (start - trendWeight) / (start - goalKg))) * 100) : 100,
     plannedTodayKg: planToday,
     plannedTodayBodyFatPct: plannedBodyFat(config, today),
     deltaVsPlanKg: round(trendWeight - planToday, 2),
@@ -153,8 +196,14 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
   });
   const staleSources = sorted.length ? sources.filter((s) => s.key !== 'workouts' && (s.days === null || s.days >= 2)) : [];
 
-  const deltaVsPlanKg = weighIns.length && today >= config.profile.startDate ? goal.deltaVsPlanKg : null;
+  const started = weighIns.length && today >= config.profile.startDate;
+  const deltaVsPlanKg = started ? goal.deltaVsPlanKg : null;
   const advice = buildAdvice({
+    mode: config.goal.mode,
+    bfRate,
+    leanRate,
+    deltaVsPlanBf: started ? goal.deltaVsPlanBf : null,
+    weightKg: trendWeight,
     targets,
     achievableKg,
     recentRateKg,
@@ -170,7 +219,7 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
   const chartFrom = addDays(today, -89) > config.profile.startDate ? addDays(today, -89) : config.profile.startDate;
   const weightSeries = trend
     .filter((p) => p.date >= chartFrom)
-    .map((p) => ({ ...p, plan: plannedWeight(config, p.date), bodyFatPct: byDate.get(p.date)?.weight?.bodyFatPct ?? null }));
+    .map((p) => ({ ...p, plan: plannedWeight(config, p.date), planBf: plannedBodyFat(config, p.date), planLean: plannedLeanMass(config, p.date) }));
   const daily = dateRange(addDays(today, -27), today).map((d) => {
     const r = byDate.get(d);
     const kinds = workoutKinds(r);
@@ -190,12 +239,18 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
     generatedAt: now.toISOString(),
     today,
     demo,
+    profile: { sex: config.profile.sex, age: config.profile.age, heightCm: config.profile.heightCm },
     current: {
       trendWeightKg: round(trendWeight, 1),
       lastWeightKg: lastWeigh?.weight.kg ?? null,
       lastWeighDate: lastWeigh?.date ?? null,
-      bodyFatPct: lastBf,
-      leanMassKg: lastBf !== null ? round(trendWeight * (1 - lastBf / 100), 1) : null,
+      bodyFatPct: bfNow != null ? round(bfNow, 1) : null,
+      lastBodyFatPct: lastBf,
+      leanMassKg: leanNow != null ? round(leanNow, 1) : null,
+      changeFromStartLeanKg: leanNow != null && config.profile.startLeanMassKg != null ? round(leanNow - config.profile.startLeanMassKg, 1) : null,
+      changeFromStartBf: bfNow != null && startBf != null ? round(bfNow - startBf, 1) : null,
+      bfRatePerWeek: bfRate,
+      leanRatePerWeek: leanRate,
       changeFromStartKg: round(trendWeight - start, 1),
       recentRateKgPerWeek: recentRateKg,
     },
@@ -203,10 +258,10 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
     targets,
     todayGoals,
     remainingToday: {
-      kcal: n.kcal != null ? round(targets.kcal - n.kcal, -1) : targets.kcal,
+      kcal: n.kcal != null ? round(targets.kcalToday - n.kcal, -1) : targets.kcalToday,
       proteinG: n.proteinG != null ? round(targets.proteinG - n.proteinG) : targets.proteinG,
     },
-    meals: mealPlan(targets, daysBetween('2026-01-01', today), isTrainingDay),
+    meals: mealPlan({ ...targets, kcal: targets.kcalToday, carbsG: targets.carbsToday }, daysBetween('2026-01-01', today), isTrainingDay),
     training,
     week,
     goal,

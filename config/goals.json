@@ -1,5 +1,4 @@
 {
-  "_note": "★ 初期値はサンプルです。profile と goal を自分の数値に書き換えてください（README「1. 目標を設定する」参照）",
   "timezone": "Asia/Tokyo",
   "apps": {
     "weight": "タニタ",
@@ -9,43 +8,46 @@
   },
   "profile": {
     "sex": "male",
-    "age": 35,
-    "heightCm": 172,
+    "age": 49,
+    "heightCm": 167,
     "activityLevel": "moderate",
-    "startDate": "2026-11-01",
-    "startWeightKg": 75.0,
-    "startBodyFatPct": 20.0
+    "startDate": "2026-10-29",
+    "startWeightKg": 86.0,
+    "startBodyFatPct": 26.1
   },
   "goal": {
+    "mode": "recomp",
     "targetDate": "2027-03-31",
-    "targetWeightKg": 68.0,
-    "targetBodyFatPct": 12.0,
-    "maxWeeklyLossPct": 1.0
+    "targetBodyFatPct": 22.0,
+    "leanGainKg": 2.0,
+    "maxWeeklyLossPct": 0.5
   },
   "milestones": [
-    { "date": "2026-11-30", "label": "習慣化：記録100%・週4トレ定着" },
-    { "date": "2026-12-31", "label": "年末：体脂肪 -2%" },
-    { "date": "2027-01-31", "label": "1月：腹筋の輪郭が見え始める" },
-    { "date": "2027-02-28", "label": "2月：減量の山場" },
-    { "date": "2027-03-31", "label": "ゴール：理想のボディ" }
+    { "date": "2026-11-30", "label": "習慣化：週6回のトレーニングと毎朝の測定" },
+    { "date": "2026-12-31", "label": "年末年始も週5回以上をキープ" },
+    { "date": "2027-01-31", "label": "主要種目（スクワット・ベンチ・ロウ）の重量 +5〜10%" },
+    { "date": "2027-02-28", "label": "除脂肪体重の増加を確認・最後の追い込み" },
+    { "date": "2027-03-31", "label": "ゴール：体脂肪率22%・筋肉量を最大化" }
   ],
   "daily": {
     "sleepHours": 7.5,
     "steps": 8000,
     "proteinGPerKg": 2.0,
-    "fatPctOfKcal": 25
+    "fatPctOfKcal": 25,
+    "heavyDayBonusKcal": 150
   },
   "weekly": {
-    "strengthSessions": 4,
-    "cardioSessions": 2
+    "strengthSessions": 6,
+    "cardioSessions": 0,
+    "deloadEveryWeeks": 6
   },
   "program": {
-    "mon": "push",
-    "tue": "lower",
-    "wed": "cardio",
-    "thu": "pull",
-    "fri": "lower2",
-    "sat": "cardio",
-    "sun": "rest"
+    "mon": "back_shoulders:light",
+    "tue": "legs:light",
+    "wed": "chest_arms:light",
+    "thu": "rest",
+    "fri": "back_shoulders:heavy",
+    "sat": "legs:heavy",
+    "sun": "chest_arms:heavy"
   }
 }

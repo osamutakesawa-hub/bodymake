@@ -150,6 +150,7 @@ h3 { font-size: 14px; margin: 0 0 8px; color: var(--ink-2); font-weight: 600; }
 .day .dw { font-size: 12px; color: var(--ink-2); }
 .day .dn { font-size: 11px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 4px 0; }
 .day .st { margin: 0 auto; }
+.day .it { font-size: 12px; font-weight: 600; margin: 2px 0 4px; color: var(--ink-2); }
 
 .progress { position: relative; height: 14px; background: var(--surface-2); border-radius: 7px; margin: 28px 0 28px; }
 .progress .fill { position: absolute; inset: 0 auto 0 0; background: var(--series-1); border-radius: 7px; }
@@ -158,12 +159,12 @@ h3 { font-size: 14px; margin: 0 0 8px; color: var(--ink-2); font-weight: 600; }
 .progress .ends { position: absolute; top: 20px; font-size: 12px; color: var(--ink-2); }
 
 .timeline { list-style: none; margin: 0; padding: 0; position: relative; }
-.timeline li { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; padding: 10px 0; position: relative; }
+.timeline li { display: grid; grid-template-columns: 22px 1fr; gap: 2px 10px; padding: 10px 0; position: relative; }
 .timeline li::before { content: ""; position: absolute; left: 10px; top: 32px; bottom: -10px; width: 2px; background: var(--grid); }
 .timeline li:last-child::before { display: none; }
 .timeline .d { font-size: 12px; color: var(--ink-2); }
-.timeline .goalv { text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }
-.timeline .goalv span { display: block; font-size: 12px; color: var(--muted); }
+.timeline .goalv { grid-column: 2; font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 600; }
+.timeline .goalv span { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 8px; }
 
 .chart { position: relative; }
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -204,20 +205,24 @@ const md = (ymd) => { const [, m, d] = ymd.split('-'); return `${+m}/${+d}`; };
 const wd = (ymd) => WD[new Date(ymd + 'T00:00:00Z').getUTCDay()];
 const ICON = { good: '✓', warning: '!', critical: '×', pending: '', info: 'i' };
 const STATUS_LABEL = { good: '達成', warning: '注意', critical: '未達', pending: '未完了', info: '情報' };
+const signed = (v, d = 0) => (v == null ? '—' : (v > 0 ? '+' : '') + fmt(v, d));
 const st = (s) => `<span class="st ${s}" role="img" aria-label="${STATUS_LABEL[s] ?? s}" title="${STATUS_LABEL[s] ?? s}">${ICON[s] ?? ''}</span>`;
 
 function valueText(g) {
   if (g.unit === 'min') return `${hm(g.actual)} <span>/ ${hm(g.target)}</span>`;
   if (g.key === 'training') return g.target == null ? '<span>休養日</span>' : g.actual ? '完了' : '<span>未実施</span>';
   if (g.key === 'weighin') return g.actual == null ? '<span>未測定</span>' : `${fmt(g.actual, 1)} kg`;
-  if (g.key === 'weight') return `${g.actual == null ? '—' : (g.actual > 0 ? '+' : '') + fmt(g.actual, 2)} <span>/ ${fmt(g.target, 2)} kg</span>`;
+  if (['weight', 'bf', 'lean'].includes(g.key)) {
+    const sg = (v) => (v == null ? '—' : (v > 0 ? '+' : '') + fmt(v, 2));
+    return `${sg(g.actual)} <span>/ 目安 ${sg(g.target)} ${esc(g.unit)}</span>`;
+  }
   const d = g.unit === 'kg' ? 1 : 0;
   return `${fmt(g.actual, d)} <span>/ ${fmt(g.target, d)} ${esc(g.unit)}</span>`;
 }
 
 function goalRow(g, { bar = true } = {}) {
   let pct = null;
-  if (bar && g.target && g.actual != null && g.key !== 'weight') pct = Math.max(0, g.actual / g.target);
+  if (bar && g.target && g.actual != null && !['weight', 'bf', 'lean'].includes(g.key)) pct = Math.max(0, g.actual / g.target);
   const over = pct !== null && pct > 1.1 && ['kcal', 'fat', 'carbs'].includes(g.key);
   return `<div class="goal-row">${st(g.status)}<div class="name">${esc(g.label)}${g.note ? `<span class="note">${esc(g.note)}</span>` : ''}</div><div class="num">${valueText(g)}</div>${
     pct !== null ? `<div class="bar" role="presentation"><i class="${over ? 'over' : ''}" style="width:${Math.min(100, pct * 100)}%"></i></div>` : ''
@@ -257,7 +262,7 @@ function drawChart(el, { points, series, bars, target, yFmt, yMin, yMax, tipFmt,
   });
   const labelEvery = Math.ceil(n / 6);
   points.forEach((p, i) => {
-    if (i % labelEvery === 0 || i === n - 1) svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--muted)">${md(p.date)}</text>`;
+    if ((i % labelEvery === 0 && n - 1 - i >= labelEvery / 2) || i === n - 1) svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--muted)">${md(p.date)}</text>`;
   });
   if (bars) {
     const bw = Math.max(3, Math.min(18, iw / n - 2));
@@ -321,6 +326,7 @@ function render(d) {
   const c = d.current, g = d.goal, t = d.targets;
   const plan = g.deltaVsPlanKg;
   const ahead = plan != null && plan <= 0;
+  const recomp = g.mode === 'recomp';
   const app = $('#app');
   app.innerHTML = `
   <header class="top">
@@ -331,10 +337,14 @@ function render(d) {
   <nav class="chips"><a href="#today">今日</a><a href="#week">今週</a><a href="#goal">3月末ゴール</a><a href="#milestones">マイルストーン</a><a href="#trends">推移</a></nav>
 
   <div class="grid tiles" style="margin-top:8px">
-    <div class="card tile"><div class="label">体重（トレンド）</div><div class="value">${fmt(c.trendWeightKg, 1)}<small>kg</small></div><div class="delta ${c.changeFromStartKg < 0 ? 'good' : ''}">開始から ${c.changeFromStartKg > 0 ? '+' : ''}${fmt(c.changeFromStartKg, 1)} kg</div></div>
+    ${recomp ? `
+    <div class="card tile"><div class="label">体脂肪率（トレンド）</div><div class="value">${fmt(c.bodyFatPct, 1)}<small>%</small></div><div class="delta ${c.changeFromStartBf < 0 ? 'good' : ''}">開始から ${signed(c.changeFromStartBf, 1)}%</div></div>
+    <div class="card tile"><div class="label">除脂肪体重（筋肉など）</div><div class="value">${fmt(c.leanMassKg, 1)}<small>kg</small></div><div class="delta ${c.changeFromStartLeanKg > 0 ? 'good' : ''}">開始から ${signed(c.changeFromStartLeanKg, 1)} kg</div></div>
+    <div class="card tile"><div class="label">体重（トレンド）</div><div class="value">${fmt(c.trendWeightKg, 1)}<small>kg</small></div><div class="delta">開始から ${signed(c.changeFromStartKg, 1)} kg</div></div>` : `
+    <div class="card tile"><div class="label">体重（トレンド）</div><div class="value">${fmt(c.trendWeightKg, 1)}<small>kg</small></div><div class="delta ${c.changeFromStartKg < 0 ? 'good' : ''}">開始から ${signed(c.changeFromStartKg, 1)} kg</div></div>
     <div class="card tile"><div class="label">体脂肪率</div><div class="value">${fmt(c.bodyFatPct, 1)}<small>%</small></div><div class="delta">除脂肪 ${fmt(c.leanMassKg, 1)} kg</div></div>
-    <div class="card tile"><div class="label">計画ラインとの差</div><div class="value">${plan == null ? '—' : (plan > 0 ? '+' : '') + fmt(plan, 1)}<small>kg</small></div><div class="delta ${ahead ? 'good' : ''}">${plan == null ? '' : ahead ? '計画より先行' : '計画より遅れ'}</div></div>
-    <div class="card tile"><div class="label">今日の目標カロリー</div><div class="value">${fmt(t.kcal)}<small>kcal</small></div><div class="delta">P${t.proteinG} F${t.fatG} C${t.carbsG}</div></div>
+    <div class="card tile"><div class="label">計画ラインとの差</div><div class="value">${plan == null ? '—' : signed(plan, 1)}<small>kg</small></div><div class="delta ${ahead ? 'good' : ''}">${plan == null ? '' : ahead ? '計画より先行' : '計画より遅れ'}</div></div>`}
+    <div class="card tile"><div class="label">今日の目標カロリー</div><div class="value">${fmt(t.kcalToday)}<small>kcal</small></div><div class="delta">${t.dayAdjustKcal ? `${d.training.intensity === 'heavy' ? '重い日' : '軽い日・休養日'} ${signed(t.dayAdjustKcal)}・週平均 ${fmt(t.kcal)}` : `P${t.proteinG} F${t.fatG} C${t.carbsG}`}</div></div>
   </div>
 
   <section id="today">
@@ -351,8 +361,8 @@ function render(d) {
       </div>
       <div class="card menu">
         <h3>今日のトレーニング</h3>
-        <div style="margin-bottom:8px"><span class="pill">${esc(d.training.phase.name)}</span><b>${esc(d.training.name)}</b>${d.training.done ? ' ' + st('good') : ''}</div>
-        <ol>${d.training.items.map((i) => `<li>${esc(i.name)}${i.prescription ? `<span class="rx">${esc(i.prescription)}</span>` : ''}</li>`).join('')}</ol>
+        <div style="margin-bottom:8px"><span class="pill">${esc(d.training.phase.name)}</span>${d.training.deload ? '<span class="pill">回復週</span>' : ''}<b>${esc(d.training.name)}</b>${d.training.done ? ' ' + st('good') : ''}</div>
+        <ol>${d.training.items.map((i) => `<li>${i.main ? '<b>' + esc(i.name) + '</b>' : esc(i.name)}${i.prescription ? `<span class="rx">${esc(i.prescription)}</span>` : ''}</li>`).join('')}</ol>
         <div class="adjust">${esc(d.training.phase.note)}${d.training.adjustments.map((a) => `<br>⚙ ${esc(a)}`).join('')}</div>
       </div>
       <div class="card">
@@ -365,18 +375,22 @@ function render(d) {
 
   <section id="week">
     <h2>今週の目標 <small>${md(d.week.start)}〜${md(d.week.end)}</small></h2>
-    <div class="week-strip">${d.week.plan.map((p) => `<div class="day ${p.today ? 'today' : ''}"><div class="dw">${wd(p.date)} ${md(p.date)}</div><div class="dn" title="${esc(p.name)}">${esc(p.name.replace(/（.*）/, ''))}</div>${p.kind === 'rest' ? st('good') : p.done ? st('good') : p.past ? st('critical') : st('pending')}</div>`).join('')}</div>
+    <div class="week-strip">${d.week.plan.map((p) => `<div class="day ${p.today ? 'today' : ''}"><div class="dw">${wd(p.date)}<br>${md(p.date)}</div><div class="dn" title="${esc(p.name)}">${esc(p.name.replace(/（.*）/, ''))}</div><div class="it">${p.intensity === 'heavy' ? '重' : p.intensity === 'light' ? '軽' : p.kind === 'rest' ? '休' : ''}</div>${p.kind === 'rest' ? st('good') : p.done ? st('good') : p.past ? st('critical') : st('pending')}</div>`).join('')}</div>
     <div class="card">${d.week.goals.map((x) => goalRow(x, { bar: ['strength', 'cardio', 'protein', 'steps', 'sleep'].includes(x.key) })).join('')}</div>
   </section>
 
   <section id="goal">
     <h2>3月末のゴール <small>${esc(g.targetDate.replaceAll('-', '/'))}・残り${g.weeksLeft}週</small></h2>
     <div class="card">
-      <div class="grid tiles">
+      <div class="grid tiles">${recomp ? `
+        <div class="tile"><div class="label">目標体脂肪率</div><div class="value">${fmt(g.targetBodyFatPct, 1)}<small>%</small></div><div class="delta">あと ${fmt(g.remainingBf, 1)}%・計画 ${fmt(g.plannedTodayBodyFatPct, 1)}%</div></div>
+        <div class="tile"><div class="label">目標除脂肪体重</div><div class="value">${fmt(g.targetLeanMassKg, 1)}<small>kg</small></div><div class="delta">開始 ${fmt(g.startLeanMassKg, 1)} → ${signed(g.targetLeanMassKg - g.startLeanMassKg, 1)} kg</div></div>
+        <div class="tile"><div class="label">今のペースだと3月末</div><div class="value">${fmt(g.projectedBodyFatPct, 1)}<small>%</small></div><div class="delta">${g.projectedLeanMassKg == null ? '2週間分の記録で予測' : `除脂肪 ${fmt(g.projectedLeanMassKg, 1)} kg`}</div></div>
+        <div class="tile"><div class="label">体重の目安</div><div class="value">${fmt(g.targetWeightKg, 1)}<small>kg</small></div><div class="delta">筋肉が増えた分は増えてOK</div></div>` : `
         <div class="tile"><div class="label">目標体重</div><div class="value">${fmt(g.targetWeightKg, 1)}<small>kg</small></div><div class="delta">あと ${fmt(g.remainingKg, 1)} kg</div></div>
         <div class="tile"><div class="label">目標体脂肪率</div><div class="value">${fmt(g.targetBodyFatPct, 1)}<small>%</small></div><div class="delta">現在 ${fmt(c.bodyFatPct, 1)}%・計画 ${fmt(g.plannedTodayBodyFatPct, 1)}%</div></div>
-        <div class="tile"><div class="label">今のペースだと3月末</div><div class="value">${fmt(g.projectedKg, 1)}<small>kg</small></div><div class="delta">${c.recentRateKgPerWeek == null ? '2週間分の記録で予測' : `直近 週${c.recentRateKgPerWeek > 0 ? '+' : ''}${fmt(c.recentRateKgPerWeek, 2)} kg`}</div></div>
-        <div class="tile"><div class="label">必要なペース</div><div class="value">${fmt(t.weeklyRateKg, 2)}<small>kg/週</small></div><div class="delta">${t.goalAtRisk ? '⚠ 安全上限を超過' : `上限 ${fmt(t.maxWeeklyRateKg, 2)} kg/週`}</div></div>
+        <div class="tile"><div class="label">今のペースだと3月末</div><div class="value">${fmt(g.projectedKg, 1)}<small>kg</small></div><div class="delta">${c.recentRateKgPerWeek == null ? '2週間分の記録で予測' : `直近 週${signed(c.recentRateKgPerWeek, 2)} kg`}</div></div>
+        <div class="tile"><div class="label">必要なペース</div><div class="value">${fmt(t.weeklyRateKg, 2)}<small>kg/週</small></div><div class="delta">${t.goalAtRisk ? '⚠ 安全上限を超過' : `上限 ${fmt(t.maxWeeklyRateKg, 2)} kg/週`}</div></div>`}
       </div>
       ${progressBar(g, c)}
     </div>
@@ -384,13 +398,15 @@ function render(d) {
 
   <section id="milestones">
     <h2>マイルストーン</h2>
-    <div class="card"><ul class="timeline">${d.milestones.map((m) => `<li>${st(m.status === 'achieved' ? 'good' : m.status === 'missed' ? 'critical' : 'pending')}<div><div class="d">${esc(m.date.replaceAll('-', '/'))}${m.daysLeft >= 0 ? `・あと${m.daysLeft}日` : ''}</div><div>${esc(m.label)}</div></div><div class="goalv">${fmt(m.targetWeightKg, 1)} kg<span>体脂肪 ${fmt(m.targetBodyFatPct, 1)}%</span></div></li>`).join('')}</ul></div>
+    <div class="card"><ul class="timeline">${d.milestones.map((m) => `<li>${st(m.status === 'achieved' ? 'good' : m.status === 'missed' ? 'critical' : 'pending')}<div><div class="d">${esc(m.date.replaceAll('-', '/'))}${m.daysLeft >= 0 ? `・あと${m.daysLeft}日` : ''}</div><div>${esc(m.label)}</div></div><div class="goalv">${g.mode === 'recomp' ? `体脂肪 ${fmt(m.targetBodyFatPct, 1)}%<span>除脂肪 ${fmt(m.targetLeanMassKg, 1)}kg・体重 ${fmt(m.targetWeightKg, 1)}kg</span>` : `${fmt(m.targetWeightKg, 1)} kg<span>体脂肪 ${fmt(m.targetBodyFatPct, 1)}%</span>`}</div></li>`).join('')}</ul></div>
   </section>
 
   <section id="trends">
     <h2>推移</h2>
     <div class="grid g2">
-      <div class="card"><h3>体重</h3><div class="legend"><span><i class="dot" style="background:var(--series-1-soft)"></i>測定値</span><span><i style="background:var(--series-1)"></i>トレンド</span><span><i class="dash"></i>計画ライン</span></div>${chartShell('c-weight', 240)}${tableView(d.series.weight.filter((p) => p.weight != null).reverse(), [['date', '日付'], ['weight', '体重'], ['trend', 'トレンド'], ['plan', '計画'], ['bodyFatPct', '体脂肪%']])}</div>
+      <div class="card"><h3>体脂肪率</h3><div class="legend"><span><i class="dot" style="background:var(--series-1-soft)"></i>測定値</span><span><i style="background:var(--series-1)"></i>トレンド</span><span><i class="dash"></i>計画ライン</span></div>${chartShell('c-bf', 240)}</div>
+      <div class="card"><h3>除脂肪体重（筋肉など）</h3><div class="legend"><span><i class="dot" style="background:var(--series-1-soft)"></i>測定値</span><span><i style="background:var(--series-1)"></i>トレンド</span><span><i class="dash"></i>計画ライン</span></div>${chartShell('c-lean', 240)}</div>
+      <div class="card"><h3>体重</h3><div class="legend"><span><i class="dot" style="background:var(--series-1-soft)"></i>測定値</span><span><i style="background:var(--series-1)"></i>トレンド</span><span><i class="dash"></i>計画ライン</span></div>${chartShell('c-weight', 240)}${tableView(d.series.weight.filter((p) => p.weight != null).reverse(), [['date', '日付'], ['weight', '体重'], ['bodyFatPct', '体脂肪%'], ['leanMassKg', '除脂肪'], ['trend', '体重トレンド'], ['bfTrend', '体脂肪トレンド']])}</div>
       <div class="card"><h3>摂取カロリー（28日）</h3>${chartShell('c-kcal')}${tableView([...d.series.daily].reverse(), [['date', '日付'], ['kcal', 'kcal'], ['proteinG', 'P(g)']])}</div>
       <div class="card"><h3>タンパク質（28日）</h3>${chartShell('c-protein')}</div>
       <div class="card"><h3>睡眠（28日）</h3>${chartShell('c-sleep')}${tableView([...d.series.daily].reverse().map((r) => ({ ...r, sleep: hm(r.sleepMinutes) })), [['date', '日付'], ['sleep', '睡眠'], ['steps', '歩数']])}</div>
@@ -404,7 +420,10 @@ function render(d) {
   <footer>推定TDEE ${fmt(d.energy.tdee)} kcal（式 ${fmt(d.energy.formula)}${d.energy.observed ? `・実測 ${fmt(d.energy.observed)}` : ''}）・更新 ${new Date(d.generatedAt).toLocaleString('ja-JP')}</footer>`;
 
   const pts = d.series.daily;
+  const comp = (key, trendKey, planKey, unit, dg) => ({ points: d.series.weight, height: 240, series: [{ key: planKey, color: 'var(--ink-2)', dash: true }, { key, color: 'var(--series-1-soft)', type: 'dots' }, { key: trendKey, color: 'var(--series-1)' }], yFmt: (v) => v.toFixed(dg), tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br>測定 <b>${fmt(p[key], 1)}</b>${unit}・トレンド <b>${fmt(p[trendKey], 1)}</b><br>計画 ${fmt(p[planKey], 1)}${unit}` });
   const draws = [
+    () => drawChart($('#c-bf'), comp('bodyFatPct', 'bfTrend', 'planBf', '%', 1)),
+    () => drawChart($('#c-lean'), comp('leanMassKg', 'leanTrend', 'planLean', 'kg', 1)),
     () => drawChart($('#c-weight'), { points: d.series.weight, height: 240, series: [{ key: 'plan', color: 'var(--ink-2)', dash: true }, { key: 'weight', color: 'var(--series-1-soft)', type: 'dots' }, { key: 'trend', color: 'var(--series-1)' }], yFmt: (v) => v.toFixed(1), tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br>測定 <b>${fmt(p.weight, 1)}</b> kg・トレンド <b>${fmt(p.trend, 1)}</b><br>計画 ${fmt(p.plan, 1)} kg` }),
     () => drawChart($('#c-kcal'), { points: pts, bars: true, series: [{ key: 'kcal', color: 'var(--series-1)' }], target: t.kcal, yMin: 0, yFmt: (v) => fmt(v), tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br><b>${fmt(p.kcal)}</b> kcal・P ${fmt(p.proteinG)}g` }),
     () => drawChart($('#c-protein'), { points: pts, bars: true, series: [{ key: 'proteinG', color: 'var(--series-1)' }], target: t.proteinG, yMin: 0, yFmt: (v) => fmt(v), tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br>タンパク質 <b>${fmt(p.proteinG)}</b> g` }),
@@ -421,16 +440,21 @@ function aiCard(ai) {
 }
 
 function progressBar(g, c) {
-  const span = g.startWeightKg - g.targetWeightKg;
-  if (!span) return '';
-  const pos = (kg) => Math.max(0, Math.min(100, ((g.startWeightKg - kg) / span) * 100));
-  return `<div class="progress" role="img" aria-label="開始${g.startWeightKg}kgから目標${g.targetWeightKg}kgまでの進捗 ${g.progressPct}%">
-    <div class="fill" style="width:${pos(c.trendWeightKg)}%"></div>
-    <div class="plan" style="left:${pos(g.plannedTodayKg)}%" title="今日の計画値"></div>
-    <div class="mark" style="left:${pos(c.trendWeightKg)}%">現在 ${fmt(c.trendWeightKg, 1)}kg（${g.progressPct}%）</div>
-    <div class="ends" style="left:0">開始 ${fmt(g.startWeightKg, 1)}kg</div>
-    <div class="ends" style="right:0">目標 ${fmt(g.targetWeightKg, 1)}kg</div>
-  </div><div class="sub" style="margin-top:8px">縦線は今日の計画値（${fmt(g.plannedTodayKg, 1)}kg）</div>`;
+  const recomp = g.mode === 'recomp';
+  const [from, to, now, planned, unit, dg] = recomp
+    ? [g.startBodyFatPct, g.targetBodyFatPct, c.bodyFatPct, g.plannedTodayBodyFatPct, '%', 1]
+    : [g.startWeightKg, g.targetWeightKg, c.trendWeightKg, g.plannedTodayKg, 'kg', 1];
+  const span = from - to;
+  if (!span || now == null) return '';
+  const pos = (v) => Math.max(0, Math.min(100, ((from - v) / span) * 100));
+  const what = recomp ? '体脂肪率' : '体重';
+  return `<div class="progress" role="img" aria-label="${what}：開始${from}${unit}から目標${to}${unit}までの進捗 ${g.progressPct}%">
+    <div class="fill" style="width:${pos(now)}%"></div>
+    <div class="plan" style="left:${pos(planned)}%" title="今日の計画値"></div>
+    <div class="mark" style="left:${Math.min(80, Math.max(20, pos(now)))}%">現在 ${fmt(now, dg)}${unit}（${g.progressPct}%）</div>
+    <div class="ends" style="left:0">開始 ${fmt(from, dg)}${unit}</div>
+    <div class="ends" style="right:0">目標 ${fmt(to, dg)}${unit}</div>
+  </div><div class="sub" style="margin-top:8px">${what}の進捗。縦線は今日の計画値（${fmt(planned, dg)}${unit}）</div>`;
 }
 
 function tableView(rows, cols) {

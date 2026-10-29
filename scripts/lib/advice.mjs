@@ -70,35 +70,15 @@ export function buildAdvice(ctx) {
   const t = ctx.targets;
 
   // --- 目標とペース ---
-  if (t.goalAtRisk) {
-    add(
-      'critical',
-      'goal',
-      '今の目標は期限内に安全なペースを超えています',
-      `必要ペースは週${t.neededWeeklyRateKg}kgですが、筋量を守れる上限は週${t.maxWeeklyRateKg}kgです。このペースだと3月末は約${ctx.achievableKg}kgの見込みです。目標体重を見直すか、体脂肪率を主目標にしましょう。`
-    );
-  }
-  if (ctx.recentRateKg !== null && ctx.trendDays >= 14) {
-    const lossRate = -ctx.recentRateKg; // 正 = 減っている
-    if (lossRate > t.maxWeeklyRateKg * 1.1) {
-      add('warning', 'nutrition', '体重の落ち方が速すぎます', `直近2週間で週${round(lossRate, 2)}kgのペースです。筋肉が落ちやすいので、主に炭水化物で+150〜200kcal増やしてください。`);
-    } else if (t.neededWeeklyRateKg > 0 && lossRate < 0.1) {
-      add('warning', 'nutrition', '体重が停滞しています', `直近2週間でほぼ変化なし。目標カロリーを−150kcal（ご飯を軽く1杯分）するか、1日の歩数を+2,000歩増やしましょう。`);
-    } else if (t.neededWeeklyRateKg > 0 && lossRate >= t.weeklyRateKg * 0.7) {
-      add('good', 'goal', '順調なペースです', `直近2週間で週${round(lossRate, 2)}kg減。この調子を維持しましょう。`);
-    }
-  }
-  if (ctx.deltaVsPlanKg !== null) {
-    if (ctx.deltaVsPlanKg > 1) add('warning', 'goal', `計画ラインより${round(ctx.deltaVsPlanKg, 1)}kg遅れています`, '目標カロリーは自動で再計算されています。週の平均カロリーを目標内に収めることを最優先に。');
-    else if (ctx.deltaVsPlanKg < -1) add('good', 'goal', `計画より${round(-ctx.deltaVsPlanKg, 1)}kg先行しています`, '急ぎすぎは筋量低下のリスク。トレーニングの重量が落ちていないか確認しましょう。');
-  }
+  if (ctx.mode === 'recomp') recompAdvice(ctx, add);
+  else cutAdvice(ctx, add);
 
   // --- 食事 ---
   const w = ctx.week7;
   if (w.proteinAvg !== null && w.proteinAvg < t.proteinG * 0.9) {
     const short = round(t.proteinG - w.proteinAvg);
     const foods = proteinFillers(short).map((f) => `${f.name}（P${f.p}g）`).join('、');
-    add('warning', 'nutrition', `タンパク質が1日平均${short}g不足`, `7日平均${round(w.proteinAvg)}g / 目標${t.proteinG}g。追加するなら：${foods}`);
+    add('warning', 'nutrition', `タンパク質が1日平均${short}g不足`, `7日平均${round(w.proteinAvg)}g / 目標${t.proteinG}g。追加するなら：${foods}。40代以降は1回に30〜40gを3〜4回に分けると筋肉の合成が高まりやすくなります`);
   } else if (w.proteinAvg !== null && w.proteinAvg < t.proteinG) {
     add('info', 'nutrition', `タンパク質はあと${round(t.proteinG - w.proteinAvg)}g`, `7日平均${round(w.proteinAvg)}g / 目標${t.proteinG}g。間食をプロテインかヨーグルトにすれば届きます。`);
   } else if (w.proteinAvg !== null) {
@@ -135,4 +115,57 @@ export function buildAdvice(ctx) {
 
   const order = { critical: 0, warning: 1, info: 2, good: 3 };
   return a.sort((x, y) => order[x.level] - order[y.level]);
+}
+
+function cutAdvice(ctx, add) {
+  const t = ctx.targets;
+  if (t.goalAtRisk) {
+    add(
+      'critical',
+      'goal',
+      '今の目標は期限内に安全なペースを超えています',
+      `必要ペースは週${t.neededWeeklyRateKg}kgですが、筋量を守れる上限は週${t.maxWeeklyRateKg}kgです。このペースだと3月末は約${ctx.achievableKg}kgの見込みです。目標体重を見直すか、体脂肪率を主目標にしましょう。`
+    );
+  }
+  if (ctx.recentRateKg !== null && ctx.trendDays >= 14) {
+    const lossRate = -ctx.recentRateKg; // 正 = 減っている
+    if (lossRate > t.maxWeeklyRateKg * 1.1) {
+      add('warning', 'nutrition', '体重の落ち方が速すぎます', `直近2週間で週${round(lossRate, 2)}kgのペースです。筋肉が落ちやすいので、主に炭水化物で+150〜200kcal増やしてください。`);
+    } else if (t.neededWeeklyRateKg > 0 && lossRate < 0.1) {
+      add('warning', 'nutrition', '体重が停滞しています', `直近2週間でほぼ変化なし。目標カロリーを−150kcal（ご飯を軽く1杯分）するか、1日の歩数を+2,000歩増やしましょう。`);
+    } else if (t.neededWeeklyRateKg > 0 && lossRate >= t.weeklyRateKg * 0.7) {
+      add('good', 'goal', '順調なペースです', `直近2週間で週${round(lossRate, 2)}kg減。この調子を維持しましょう。`);
+    }
+  }
+  if (ctx.deltaVsPlanKg !== null) {
+    if (ctx.deltaVsPlanKg > 1) add('warning', 'goal', `計画ラインより${round(ctx.deltaVsPlanKg, 1)}kg遅れています`, '目標カロリーは自動で再計算されています。週の平均カロリーを目標内に収めることを最優先に。');
+    else if (ctx.deltaVsPlanKg < -1) add('good', 'goal', `計画より${round(-ctx.deltaVsPlanKg, 1)}kg先行しています`, '急ぎすぎは筋量低下のリスク。トレーニングの重量が落ちていないか確認しましょう。');
+  }
+}
+
+/** 筋肉を増やしつつ体脂肪率を下げる（リコンプ）。体重ではなく体脂肪率・除脂肪体重で判断する */
+function recompAdvice(ctx, add) {
+  const t = ctx.targets;
+  if (t.goalAtRisk) {
+    add('critical', 'goal', '体脂肪率の目標が期限内には厳しいペースです', `脂肪をあと${t.fatToLoseKg}kg落とす必要があり、週${t.neededWeeklyRateKg}kg必要です。筋肉を守れる上限（週${t.maxWeeklyRateKg}kg）を超えるため、目標体脂肪率か期限の見直しを検討してください。`);
+  }
+  const enough = ctx.trendDays >= 14;
+  if (enough && ctx.leanRate !== null && ctx.leanRate < -0.2) {
+    add('warning', 'training', '除脂肪体重（筋肉）が減っています', `直近2週間で週${round(ctx.leanRate, 2)}kg。①タンパク質を目標まで ②重い日の炭水化物を+50g ③睡眠7時間以上 の3つを優先してください。重い日の主種目の重量が落ちていないかも確認を。`);
+  }
+  if (enough && ctx.recentRateKg !== null && -ctx.recentRateKg > t.maxWeeklyRateKg * 1.1) {
+    add('warning', 'nutrition', '体重の落ち方が速すぎます', `週${round(-ctx.recentRateKg, 2)}kgのペースは筋肉も落ちやすい速さです。重い日を中心に+150〜200kcal（ご飯1杯分）増やしてください。`);
+  }
+  if (ctx.trendDays >= 21 && ctx.bfRate !== null && ctx.bfRate >= 0 && t.neededWeeklyRateKg > 0) {
+    add('warning', 'nutrition', '体脂肪率が下がっていません', '休養日と軽い日のカロリーを−150kcal（ご飯を半分に）するか、1日の歩数を+2,000歩増やしてください。重い日のカロリーは削らないこと。');
+  }
+  if (enough && ctx.bfRate !== null && ctx.leanRate !== null && ctx.bfRate < 0 && ctx.leanRate >= 0) {
+    add('good', 'goal', '理想的に体が変わっています', `体脂肪率 週${round(ctx.bfRate, 2)}%・除脂肪 週${ctx.leanRate >= 0 ? '+' : ''}${round(ctx.leanRate, 2)}kg。脂肪が落ちて筋肉が増えています。体重の増減は気にしなくて大丈夫です。`);
+  }
+  if (ctx.deltaVsPlanBf !== null && ctx.deltaVsPlanBf > 1) {
+    add('warning', 'goal', `体脂肪率が計画より${round(ctx.deltaVsPlanBf, 1)}%高いです`, '目標カロリーは自動で再計算されています。休養日の夜の主食と間食を見直しましょう。');
+  }
+  if (!enough) {
+    add('info', 'data', '体組成計の数値は2週間の流れで判断します', '体脂肪率は水分量で1日に1〜2%ぶれます。毎朝同じ条件（起床・トイレ後・朝食前）で測り、日々の上下は気にしないでください。');
+  }
 }
