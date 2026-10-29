@@ -50,6 +50,19 @@ function parseDurationMinutesWorkout(v) {
   return n >= 1000 ? n / 60 : n;
 }
 
+const tag = (list, extra) => list?.map((w) => ({ ...w, ...extra }));
+const joinWorkouts = (lists) => (lists.some(Boolean) ? lists.flatMap((l) => l ?? []) : undefined);
+
+/** 手入力ショートカットの「筋トレ」「有酸素」ボタン */
+function parseManual(v) {
+  if (!v) return undefined;
+  return String(v)
+    .split(/[\n,]+/)
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .map((x) => (/有酸素|cardio/i.test(x) ? { type: '有酸素（手入力）', kind: 'cardio' } : { type: '筋力トレーニング（手入力）', kind: 'strength' }));
+}
+
 /** 1日分のペイロード → 正規化レコード */
 export function normalizeDay(p) {
   if (!p || !isYmd(p.date)) throw new Error(`date (YYYY-MM-DD) が必要です: ${JSON.stringify(p?.date)}`);
@@ -71,7 +84,11 @@ export function normalizeDay(p) {
       muscleKg: round(parseNumber(pick(w, 'muscleKg', 'leanKg', 'leanMassKg')), 2),
     }),
     sleep: compact({
-      minutes: parseDurationMinutes(typeof s === 'object' ? pick(s, 'minutes', 'asleep', 'duration', 'hours') : s),
+      // 「睡眠」サンプルがないアプリ（就寝中のみ記録）の場合はベッドにいた時間で代用
+      minutes:
+        parseDurationMinutes(typeof s === 'object' ? pick(s, 'minutes', 'asleep', 'duration', 'hours') : s) ??
+        parseDurationMinutes(pick(s, 'inBedMinutes', 'inBed')),
+      inBedMinutes: parseDurationMinutes(pick(s, 'inBedMinutes', 'inBed')),
       deepMinutes: parseDurationMinutes(pick(s, 'deepMinutes', 'deep')),
       remMinutes: parseDurationMinutes(pick(s, 'remMinutes', 'rem')),
     }),
@@ -85,7 +102,12 @@ export function normalizeDay(p) {
       steps: round(parseNumber(pick(a, 'steps')), 0),
       activeKcal: round(parseNumber(pick(a, 'activeKcal', 'activeEnergy')), 0),
     }),
-    workouts: parseWorkouts(p.workouts),
+    workouts: joinWorkouts([
+      // 筋トレ記録アプリ（フィットネスポイント）のワークアウトは種類名に関係なく筋トレとして数える
+      tag(parseWorkouts(p.strengthWorkouts), { group: 'strengthApp', kind: 'strength' }),
+      tag(parseWorkouts(p.workouts), { group: 'general' }),
+      tag(parseManual(p.manualWorkout), { group: 'manual' }),
+    ]),
     syncedAt: p.syncedAt ?? new Date().toISOString(),
   };
   return Object.fromEntries(Object.entries(rec).filter(([, v]) => v !== undefined));
@@ -98,8 +120,11 @@ export function mergeDay(existing, incoming) {
   for (const key of ['weight', 'sleep', 'nutrition', 'activity']) {
     if (incoming[key]) out[key] = { ...(existing[key] ?? {}), ...incoming[key] };
   }
-  // ワークアウトはショートカットが「その日の全件」を送る前提で置き換える
-  if (incoming.workouts) out.workouts = incoming.workouts;
+  // ワークアウトはショートカットが「その日の全件」を送る前提で、届いたグループ単位で置き換える
+  if (incoming.workouts) {
+    const groups = new Set(incoming.workouts.map((w) => w.group ?? 'general'));
+    out.workouts = [...(existing.workouts ?? []).filter((w) => !groups.has(w.group ?? 'general')), ...incoming.workouts];
+  }
   return out;
 }
 

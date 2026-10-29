@@ -73,3 +73,15 @@ test('週の始まりは月曜', () => {
   assert.equal(weekStart('2026-11-01'), '2026-10-26'); // 日曜
   assert.equal(weekStart('2026-11-02'), '2026-11-02');
 });
+
+test('アプリ別の取り込み（Sleep Cycle の就寝中のみ・フィットネスポイント）', () => {
+  const a = normalizeDay({ date: '2026-11-03', sleep: { minutes: '', inBedMinutes: '7:30' }, strengthWorkouts: 'Workout', workouts: 'ウォーキング' });
+  assert.equal(a.sleep.minutes, 450);
+  assert.deepEqual(a.workouts.map((w) => w.kind ?? classifyWorkout(w.type)), ['strength', 'cardio']);
+  // 後から手入力だけ届いても、アプリ由来の記録は消えない
+  const m = mergeDay(a, normalizeDay({ date: '2026-11-03', manualWorkout: '有酸素' }));
+  assert.equal(m.workouts.length, 3);
+  // 同じグループが再送されたら置き換え
+  const m2 = mergeDay(m, normalizeDay({ date: '2026-11-03', strengthWorkouts: 'A\nB' }));
+  assert.equal(m2.workouts.filter((w) => w.group === 'strengthApp').length, 2);
+});

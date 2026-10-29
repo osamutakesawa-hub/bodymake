@@ -14,7 +14,7 @@ function status(actual, target, { tolerance = 0.1, mode = 'atLeast' } = {}) {
 }
 
 function workoutKinds(rec) {
-  return (rec?.workouts ?? []).map((w) => classifyWorkout(w.type));
+  return (rec?.workouts ?? []).map((w) => w.kind ?? classifyWorkout(w.type));
 }
 
 export function analyze(config, records, now = new Date(), { demo = false } = {}) {
@@ -146,9 +146,10 @@ export function analyze(config, records, now = new Date(), { demo = false } = {}
     ['activity', '歩数', (r) => r.activity?.steps],
     ['workouts', 'トレーニング', (r) => r.workouts?.length],
   ];
+  const apps = config.apps ?? {};
   const sources = sourceDefs.map(([key, label, get]) => {
     const lastDate = [...sorted].reverse().find((r) => get(r))?.date ?? null;
-    return { key, label, lastDate, days: lastDate ? daysBetween(lastDate, today) : null };
+    return { key, label: apps[key] ? `${label}（${apps[key]}）` : label, lastDate, days: lastDate ? daysBetween(lastDate, today) : null };
   });
   const staleSources = sorted.length ? sources.filter((s) => s.key !== 'workouts' && (s.days === null || s.days >= 2)) : [];
 

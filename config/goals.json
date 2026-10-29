@@ -1,6 +1,12 @@
 {
   "_note": "★ 初期値はサンプルです。profile と goal を自分の数値に書き換えてください（README「1. 目標を設定する」参照）",
   "timezone": "Asia/Tokyo",
+  "apps": {
+    "weight": "タニタ",
+    "sleep": "Sleep Cycle",
+    "nutrition": "カロミル",
+    "workouts": "フィットネスポイント"
+  },
   "profile": {
     "sex": "male",
     "age": 35,

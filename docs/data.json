@@ -410,19 +410,19 @@
  "sources": [
   {
    "key": "weight",
-   "label": "体重",
+   "label": "体重（タニタ）",
    "lastDate": "2026-10-29",
    "days": 0
   },
   {
    "key": "sleep",
-   "label": "睡眠",
+   "label": "睡眠（Sleep Cycle）",
    "lastDate": "2026-10-29",
    "days": 0
   },
   {
    "key": "nutrition",
-   "label": "食事",
+   "label": "食事（カロミル）",
    "lastDate": "2026-10-29",
    "days": 0
   },
@@ -434,7 +434,7 @@
   },
   {
    "key": "workouts",
-   "label": "トレーニング",
+   "label": "トレーニング（フィットネスポイント）",
    "lastDate": "2026-10-28",
    "days": 1
   }
