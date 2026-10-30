@@ -210,3 +210,56 @@ test('前回の記録は種目の部位で照合する（曜日をずらして�
   const sun = analyze(raw, [], new Date('2026-11-08T03:00:00Z'), { training: logs }); // 日曜＝胸・腕
   assert.equal(sun.training.items[0].name, 'ベンチプレス');
 });
+
+// ---- FitnessPoint のスクリーンショット（文字認識テキスト） ----
+import { parseFitnessPointText, checkSummary } from '../scripts/lib/fitnesspoint-text.mjs';
+import { isCompound } from '../scripts/lib/strength.mjs';
+
+const legsText = fs.readFileSync(new URL('./fixtures/fitnesspoint-legs.txt', import.meta.url), 'utf8');
+
+test('ワークアウト詳細画面のテキストを解析（実画面のサンプル）', () => {
+  const r = parseFitnessPointText(legsText, { refDate: '2026-10-30' });
+  assert.deepEqual(r.exercises.map((e) => e.name), ['レッグ プレス', 'レッグ エクステンション', 'シーテッド レッグ カール', 'ジムスタジオ']);
+  assert.deepEqual(r.exercises[0].sets.map((s) => `${s.weightKg}x${s.reps}`), ['100x20', '100x20', '100x20', '177x10']);
+  assert.equal(r.exercises[0].sets[3].note, 'precor vsl10');
+  assert.equal(r.exercises[1].note, '伸ばして1秒静止を意識する');
+  assert.equal(r.exercises[3].kind, 'cardio');
+  assert.equal(r.exercises[3].minutes, 40);
+  assert.deepEqual(r.summary, { exercises: 4, volumeKg: 13580, sets: 12, reps: 180 });
+  // 画面の合計（13580kg・12セット）と一致
+  assert.equal(checkSummary(r.exercises, r.summary).ok, true);
+  // 1種目読み落とすと不一致になる
+  assert.equal(checkSummary(r.exercises.slice(1), r.summary).ok, false);
+});
+
+test('合計が横並びで認識された場合と、年なしの日付', () => {
+  const t = '10月30日(金)\nエクササイズ ボリューム\n1 600 kg\nセット数 回数\n1 10\nベンチ プレス\n#1: 60 kg x 10 レップ\n';
+  const r = parseFitnessPointText(t, { refDate: '2026-10-31' });
+  assert.equal(r.date, '2026-10-30');
+  assert.deepEqual(r.summary, { exercises: 1, volumeKg: 600, sets: 1, reps: 10 });
+  // 1月に前年12月の記録を送った場合は前年
+  assert.equal(parseFitnessPointText('12月30日\nスクワット\n#1: 80 kg x 8 レップ', { refDate: '2027-01-02' }).date, '2026-12-30');
+});
+
+test('空白入りの種目名・重量の違うセットが混ざる場合の次回目標', () => {
+  assert.equal(isCompound('レッグ プレス'), true);
+  assert.equal(bodyPart('シーテッド レッグ カール'), 'legs');
+  const r = parseFitnessPointText(legsText);
+  // レッグプレス：メインは 100kg × 20（3セット）。177kg × 10 はトップセットとして併記
+  const lp = nextTarget(r.exercises[0].sets, [12, 15], 2);
+  assert.equal(lp.weightKg, 102.5);
+  assert.match(lp.text, /ほかに 177kg×10/);
+  // レッグエクステンション：16kg のウォームアップではなく 61kg が基準
+  assert.equal(nextTarget(r.exercises[1].sets, [10, 15], 3).weightKg, 63.5);
+});
+
+test('ズンバは有酸素、筋トレの部位はトレ記録から', () => {
+  const r = parseFitnessPointText(legsText);
+  const logs = [{ date: '2026-10-31', exercises: r.exercises }];
+  const d = analyze(raw, [], new Date('2026-10-31T12:00:00Z'), { training: logs }); // 土曜＝脚（重）
+  assert.deepEqual(d.week.plan.find((p) => p.date === '2026-10-31').logged.sort(), ['cardio', 'strength']);
+  assert.equal(d.week.setsByPart.find((p) => p.part === 'legs').sets, 11);
+  const next = analyze(raw, [], new Date('2026-11-07T03:00:00Z'), { training: logs }); // 次の土曜
+  assert.deepEqual(next.training.items.map((i) => i.name), ['レッグ プレス', 'レッグ エクステンション', 'シーテッド レッグ カール']);
+  assert.equal(next.training.items[2].note, '1秒スクイーズ');
+});

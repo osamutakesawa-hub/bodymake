@@ -153,7 +153,7 @@ export function todaysSession(config, date, ctx) {
   const prevIntensity = prev ? sessionFor(config, prev.date).intensity : null;
   let items;
   if (prev?.exercises?.length) {
-    items = prev.exercises.map((ex) => {
+    items = prev.exercises.filter((ex) => ex.kind !== 'cardio' && ex.sets?.some((x) => x.reps > 0)).map((ex) => {
       const main = isCompound(ex.name);
       const p = prescribe(main);
       const hist = ctx.history?.get(normalizeName(ex.name));
@@ -180,6 +180,7 @@ export function todaysSession(config, date, ctx) {
         target: target?.text ?? null,
         increase: target?.increase ?? false,
         best1rm: hist ? Math.max(...hist.sessions.map((x) => x.best1rm)) : null,
+        note: ex.note ?? null,
       };
     });
   } else {

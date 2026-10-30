@@ -372,7 +372,7 @@ function render(d) {
         <div style="margin-bottom:8px"><span class="pill">${esc(d.training.phase.name)}</span>${d.training.deload ? '<span class="pill">回復週</span>' : ''}<b>${esc(d.training.name)}</b>${d.training.done ? ' ' + st('good') : ''}</div>
         ${d.training.fromLog ? `<div class="sub" style="margin-bottom:6px">前回の同じメニュー（${md(d.training.previousDate)}）の記録から今日の目標を出しています</div>` : ''}
         <ol>${d.training.items.map((i) => `<li>${i.main ? '<b>' + esc(i.name) + '</b>' : esc(i.name)}${
-          i.target ? `<span class="goal ${i.increase ? 'up' : ''}">目標 ${esc(i.target)}</span><span class="prev">前回 ${esc(i.last)}・${esc(i.prescription)}</span>` : i.prescription ? `<span class="rx">${esc(i.prescription)}</span>${i.last ? `<span class="prev">前回 ${esc(i.last)}</span>` : ''}` : ''
+          i.target ? `<span class="goal ${i.increase ? 'up' : ''}">目標 ${esc(i.target)}</span><span class="prev">前回 ${esc(i.last)}・${esc(i.prescription)}</span>${i.note ? `<span class="prev">メモ：${esc(i.note)}</span>` : ''}` : i.prescription ? `<span class="rx">${esc(i.prescription)}</span>${i.last ? `<span class="prev">前回 ${esc(i.last)}</span>` : ''}` : ''
         }</li>`).join('')}</ol>
         <div class="adjust">${esc(d.training.phase.note)}${d.training.adjustments.map((a) => `<br>⚙ ${esc(a)}`).join('')}</div>
       </div>

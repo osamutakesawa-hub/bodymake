@@ -178,7 +178,8 @@
     "lastDate": "2026-10-23",
     "target": "60kg × 10・10・9",
     "increase": false,
-    "best1rm": 80
+    "best1rm": 80,
+    "note": null
    },
    {
     "name": "ベントオーバーロウ",
@@ -188,7 +189,8 @@
     "lastDate": "2026-10-23",
     "target": "65kg × 10・10・9",
     "increase": false,
-    "best1rm": 86.7
+    "best1rm": 86.7,
+    "note": null
    },
    {
     "name": "シーテッドロウ",
@@ -198,7 +200,8 @@
     "lastDate": "2026-10-23",
     "target": "55kg × 10・10・9",
     "increase": false,
-    "best1rm": 73.3
+    "best1rm": 73.3,
+    "note": null
    },
    {
     "name": "ショルダープレス",
@@ -208,7 +211,8 @@
     "lastDate": "2026-10-23",
     "target": "40kg × 10・10・9",
     "increase": false,
-    "best1rm": 53.3
+    "best1rm": 53.3,
+    "note": null
    },
    {
     "name": "サイドレイズ",
@@ -218,7 +222,8 @@
     "lastDate": "2026-10-23",
     "target": "10kg × 12・11・10",
     "increase": false,
-    "best1rm": 13.7
+    "best1rm": 13.7,
+    "note": null
    },
    {
     "name": "リアデルト（フェイスプル）",
@@ -228,7 +233,8 @@
     "lastDate": "2026-10-23",
     "target": "22kg × 12・11・10",
     "increase": false,
-    "best1rm": 30.1
+    "best1rm": 30.1,
+    "note": null
    }
   ],
   "adjustments": [],
@@ -1293,6 +1299,7 @@
    }
   ],
   "stalled": [],
+  "incomplete": [],
   "declining": []
  },
  "series": {

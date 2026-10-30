@@ -90,13 +90,13 @@ GitHub → Settings → **Pages** → Source: *Deploy from a branch* → Branch:
 
 👉 **[guide/fitnesspoint.md](guide/fitnesspoint.md)**
 
-過去ログは CSV で一括インポートし、毎日の記録はスクリーンショットを共有シートから送ります。スクリーンショットの読み取りには次の `ANTHROPIC_API_KEY` が必要です。
+過去ログは CSV で一括インポートし、毎日の記録はスクリーンショットを共有シートから送ります。スクリーンショットは iPhone の文字認識で読み取るので、無料で使えます（Claude で画像を読み取る方式も選べます）。
 
 ### 6. （任意）AIコーチを有効にする
 
 Settings → Secrets and variables → Actions → **New repository secret** で `ANTHROPIC_API_KEY` を登録します。
 毎朝の定期実行で Claude（`claude-opus-5-5`）が、その日の記録と目標をもとにコメントを生成し、ダッシュボードに「AIコーチ」として表示します。
-このキーは、FitnessPoint のスクリーンショットの読み取りにも使います。
+このキーは、FitnessPoint のスクリーンショットを Claude で読み取る方式にも使います。
 登録しない場合は、ルールベースの提案だけが表示されます（CSV のインポートはキーなしで使えます）。
 
 ---

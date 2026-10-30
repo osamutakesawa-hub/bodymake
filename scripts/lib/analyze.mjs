@@ -2,7 +2,7 @@
 import { addDays, daysBetween, localDate, mean, round, weekStart, dateRange } from './util.mjs';
 import { trendSeries, plannedWeight, plannedBodyFat, plannedLeanMass, normalizeGoal, estimateTdee, dailyTargets, dayKcalAdjust, milestones } from './plan.mjs';
 import { classifyWorkout, todaysSession, plannedStrengthLeft, weekPlan, sessionFor, sessionParts } from './training.mjs';
-import { exerciseHistory, exerciseProgress, weeklySetsByPart, previousSessionLog, recentPRs, PART_LABELS } from './strength.mjs';
+import { exerciseHistory, exerciseProgress, weeklySetsByPart, previousSessionLog, recentPRs, PART_LABELS, hasStrength, hasCardio } from './strength.mjs';
 import { buildAdvice, mealPlan } from './advice.mjs';
 
 function status(actual, target, { tolerance = 0.1, mode = 'atLeast' } = {}) {
@@ -30,7 +30,9 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false, tr
   // ヘルスケアのワークアウト＋筋トレログ（ログがある日は筋トレ1回として数える）
   const kindsFor = (date) => {
     const kinds = workoutKinds(byDate.get(date));
-    if (logByDate.has(date) && !kinds.includes('strength')) kinds.push('strength');
+    const log = logByDate.get(date);
+    if (log && hasStrength(log) && !kinds.includes('strength')) kinds.push('strength');
+    if (log && hasCardio(log) && !kinds.includes('cardio')) kinds.push('cardio');
     return kinds;
   };
   const first = sorted[0]?.date ?? today;
@@ -235,6 +237,8 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false, tr
     exercises: progress.slice(0, 12),
     prs: recentPRs(progress, today).map(({ name, best1rm, prDate }) => ({ name, best1rm, prDate })),
     stalled: progress.filter((p) => p.stalled && p.compound && p.sessions4w > 0).map(({ name, last1rm, best1rm }) => ({ name, last1rm, best1rm })),
+    // 画面の合計と読み取り内容が合わない日（スクショの撮り漏れ・読み違い）
+    incomplete: logs.filter((l) => l.check && !l.check.ok && l.date >= addDays(today, -7)).map((l) => ({ date: l.date, ...l.check })),
     declining: progress.filter((p) => p.compound && p.change4wPct !== null && p.change4wPct <= -5).map(({ name, change4wPct }) => ({ name, change4wPct })),
   };
   const advice = buildAdvice({

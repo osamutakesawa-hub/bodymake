@@ -17,7 +17,9 @@ export function e1rm(weightKg, reps) {
 }
 
 const COMPOUND_RE = /スクワット|ベンチ|デッド|ロウ|ローイング|懸垂|チンニング|ラットプル|ショルダープレス|ミリタリー|オーバーヘッド|インクライン.*プレス|ディップ|レッグプレス|ハックスクワット|squat|bench|deadlift|row|pull ?up|chin|lat ?pull|overhead|military|shoulder press|dip|leg press/i;
-export const isCompound = (name) => COMPOUND_RE.test(String(name).normalize('NFKC'));
+// 「レッグ プレス」のような空白入りの表記もそろえてから判定する
+const squash = (name) => String(name).normalize('NFKC').replace(/[\s・･]/g, '');
+export const isCompound = (name) => COMPOUND_RE.test(squash(name));
 
 // 上から順に判定（「レッグエクステンション」は脚、「ショルダープレス」は肩 など）
 const PART_RULES = [
@@ -31,14 +33,17 @@ const PART_RULES = [
 export const PART_LABELS = { back: '背中', shoulders: '肩', legs: '脚', chest: '胸', arms: '腕', core: '体幹', other: 'その他' };
 
 export function bodyPart(name) {
-  const n = String(name).normalize('NFKC');
+  const n = squash(name);
   // 「レッグレイズ」は体幹
   if (/レッグレイズ|leg raise/i.test(n)) return 'core';
   for (const [part, re] of PART_RULES) if (re.test(n)) return part;
   return 'other';
 }
 
-const workingSets = (sets = []) => sets.filter((s) => !s.warmup && (s.reps ?? 0) > 0);
+// 時間で記録した種目（有酸素）は reps がないので自然に除外される
+export const workingSets = (sets = []) => sets.filter((s) => !s.warmup && (s.reps ?? 0) > 0);
+export const hasStrength = (log) => (log.exercises ?? []).some((e) => e.kind !== 'cardio' && workingSets(e.sets).length);
+export const hasCardio = (log) => (log.exercises ?? []).some((e) => e.kind === 'cardio');
 
 /**
  * 種目ごとの履歴 [{date, sets, top, best1rm, volume}]
@@ -131,8 +136,13 @@ export function nextTarget(lastSets, repRange, setCount, { deload = false } = {}
   const sets = workingSets(lastSets);
   if (!sets.length) return null;
   const [lo, hi] = repRange;
-  const topW = Math.max(...sets.map((s) => s.weightKg ?? 0));
+  // メインの重量：いちばんセット数が多い重量（同数なら重いほう）。軽いウォームアップや1セットだけのトップセットに引っ張られないように
+  const freq = new Map();
+  for (const s of sets) freq.set(s.weightKg ?? 0, (freq.get(s.weightKg ?? 0) ?? 0) + 1);
+  const topW = [...freq.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0])[0][0];
   const top = sets.filter((s) => (s.weightKg ?? 0) === topW);
+  const others = sets.filter((s) => (s.weightKg ?? 0) > topW);
+  const extra = others.length ? `（ほかに ${others.map((s) => `${fmtW(s.weightKg)}×${s.reps}`).join('、')}）` : '';
   const n = setCount ?? top.length;
   const pad = (arr) => Array.from({ length: n }, (_, i) => arr[Math.min(i, arr.length - 1)]);
 
@@ -141,16 +151,16 @@ export function nextTarget(lastSets, repRange, setCount, { deload = false } = {}
     return { weightKg: w, reps: pad([lo]), increase: false, text: `${fmtW(w)} × ${pad([lo]).join('・')}（回復週）` };
   }
   if (!topW) {
-    const reps = pad(top.map((s) => Math.min(s.reps + 1, Math.max(hi, s.reps + 1))));
+    const reps = pad(top.map((s) => s.reps + 1));
     return { weightKg: 0, reps, increase: false, text: `自重 × ${reps.join('・')}` };
   }
   if (top.every((s) => s.reps >= hi)) {
     const inc = topW >= 40 ? 2.5 : topW >= 10 ? 2 : 1;
     const w = round(topW + inc, 2);
-    return { weightKg: w, reps: pad([lo]), increase: true, text: `${fmtW(w)} × ${pad([lo]).join('・')}（+${inc}kg に挑戦）` };
+    return { weightKg: w, reps: pad([lo]), increase: true, text: `${fmtW(w)} × ${pad([lo]).join('・')}（+${inc}kg に挑戦）${extra}` };
   }
   const reps = pad(top.map((s) => Math.min(hi, Math.max(lo, s.reps + 1))));
-  return { weightKg: topW, reps, increase: false, text: `${fmtW(topW)} × ${reps.join('・')}` };
+  return { weightKg: topW, reps, increase: false, text: `${fmtW(topW)} × ${reps.join('・')}${extra}` };
 }
 
 /** 週の部位別セット数（月〜今日） */
@@ -170,8 +180,10 @@ export function weeklySetsByPart(logs, from, to) {
 export function mainPart(log) {
   const count = {};
   for (const ex of log.exercises ?? []) {
+    const n = workingSets(ex.sets).length;
+    if (!n) continue;
     const p = bodyPart(ex.name);
-    count[p] = (count[p] ?? 0) + Math.max(1, workingSets(ex.sets).length);
+    count[p] = (count[p] ?? 0) + n;
   }
   return Object.entries(count).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'other';
 }

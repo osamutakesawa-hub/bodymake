@@ -117,6 +117,9 @@ export function buildAdvice(ctx) {
     if (st.stalled.length) {
       add('info', 'training', `3週間伸びていない種目：${st.stalled.map((d) => d.name).join('、')}`, '①回数レンジを変える（6〜8回 ⇄ 10〜12回）②同じ部位の別種目に3〜4週間入れ替える ③疲労が溜まっているなら回復週を入れる、のどれかを試しましょう。');
     }
+    for (const c of st.incomplete ?? []) {
+      add('info', 'data', `${c.date.slice(5).replace('-', '/')} のトレーニング記録が画面の合計と合いません`, `読み取り ${c.readVolumeKg.toLocaleString()}kg・${c.readSets}セット／画面 ${c.volumeKg?.toLocaleString() ?? '—'}kg・${c.sets ?? '—'}セット。写っていない種目があれば、続きのスクリーンショットを送ってください。`);
+    }
     if (st.prs.length) {
       add('good', 'training', `今週の自己ベスト更新：${st.prs.map((p) => p.name).join('、')}`, `推定1RM ${st.prs.map((p) => `${p.name} ${p.best1rm}kg`).join('・')}。体脂肪を落としながら筋力が伸びているのは、筋肉が増えている良いサインです。`);
     }
