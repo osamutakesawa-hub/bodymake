@@ -1,6 +1,7 @@
 // FitnessPoint などの筋トレアプリの CSV を日別ログに変換する
 // 列名は英語・日本語のよくある表記を自動判定する（1行1セットの縦持ち形式／1行に複数セットの形式の両方に対応）
 import { round } from './util.mjs';
+import { classifyExercises } from './strength.mjs';
 
 /** RFC4180 準拠の簡易CSVパーサ（クォート・改行入りセル対応、区切りは , ; タブを自動判定） */
 export function parseCsv(text) {
@@ -32,8 +33,9 @@ const COLS = {
   date: /^(date|day|日付|日時|日にち|実施日|workout ?date|start ?time|開始日時|time|日)$/i,
   exercise: /^(exercise|exercise ?name|name|種目|種目名|エクササイズ|エクササイズ名|exercise ?title|movement)$/i,
   set: /^(set|set ?#|set ?no\.?|set ?order|セット|セット数|セット番号|セットno\.?)$/i,
-  weight: /^(weight|weight ?\(kg\)|weight ?\(lbs?\)|kg|lbs?|重量|重さ|重量\(kg\)|重量（kg）|load)$/i,
-  reps: /^(reps?|repetitions|回数|レップ|レップ数|count)$/i,
+  // FitnessPoint の日本語出力は「ウエイト／距離」「回数／時間」（有酸素は距離と時間が入る）
+  weight: /^(weight|weight ?\(kg\)|weight ?\(lbs?\)|kg|lbs?|重量|重さ|重量\(kg\)|重量（kg）|load|ウエイト.*|ウェイト.*|weight ?\/ ?distance)$/i,
+  reps: /^(reps?|repetitions|回数|レップ|レップ数|count|回数.*|reps? ?\/ ?time)$/i,
   unit: /^(unit|units|単位|weight ?unit)$/i,
   sets: /^(sets|セット内容|記録|details|内容)$/i,
   warmup: /^(warm ?up|ウォームアップ|set ?type|種類|タイプ)$/i,
@@ -123,7 +125,12 @@ export function csvToLogs(text) {
       let w = idx.weight !== undefined ? num(r[idx.weight]) ?? 0 : 0;
       if (rowLbs) w = w * 0.4536;
       const reps = idx.reps !== undefined ? num(r[idx.reps]) : null;
-      sets = reps ? [{ weightKg: round(w, 2), reps }] : [];
+      // 回数0（「失敗」など）も記録として残す。集計では除外される
+      sets = reps !== null ? [{ weightKg: round(w, 2), reps }] : [];
+      const setNo = idx.set !== undefined ? num(r[idx.set]) : null;
+      if (sets.length && setNo !== null) sets[0].no = setNo;
+      const note = idx.note !== undefined ? (r[idx.note] ?? '').trim() : '';
+      if (sets.length && note) sets[0].note = note;
     } else {
       sets = parseSetText(r[idx.sets], rowLbs);
     }
@@ -137,6 +144,13 @@ export function csvToLogs(text) {
   }
   const logs = [...byDate.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, exMap]) => ({ date, source: 'csv', exercises: [...exMap.values()] }));
+    .map(([date, exMap]) => {
+      const exercises = [...exMap.values()].map((ex) => {
+        // スーパーセットで行が前後するので、セット番号順に並べ直す
+        const sets = ex.sets.every((x) => x.no != null) ? [...ex.sets].sort((a, b) => a.no - b.no) : ex.sets;
+        return { ...ex, sets: sets.map(({ no, ...x }) => x) };
+      });
+      return { date, source: 'csv', exercises: classifyExercises(exercises) };
+    });
   return { logs, skipped, columns: Object.fromEntries(Object.entries(idx).map(([k, i]) => [k, rows[hIdx][i]])) };
 }

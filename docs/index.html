@@ -470,13 +470,13 @@ function strengthSection(st) {
     return `<div class="card"><p class="empty">FitnessPoint の記録がまだありません。過去ログの CSV か、トレーニング後のスクリーンショットを送ると、種目ごとの重量・回数・推定1RMの推移と、次回の目標重量が表示されます（手順：guide/fitnesspoint.md）。</p></div>`;
   }
   const opts = st.exercises.map((e, i) => `<option value="${i}">${esc(e.name)}</option>`).join('');
-  const chg = (v) => (v == null ? '—' : `<span class="${v > 0 ? 'up' : v < 0 ? 'down' : ''}">${v > 0 ? '+' : ''}${fmt(v, 1)}%</span>`);
+  const chg = (v) => (v == null ? '—' : v === 0 ? '±0%' : `<span class="${v > 0 ? 'up' : 'down'}">${v > 0 ? '+' : ''}${fmt(v, 1)}%</span>`);
   return `<div class="grid g2">
     <div class="card"><h3>推定1RMの推移</h3><div style="margin-bottom:6px"><select id="ex-select" aria-label="種目">${opts}</select></div>${chartShell('c-e1rm', 220)}</div>
     <div class="card"><h3>種目ごとの状態</h3><div class="table-scroll" style="max-height:none"><table class="st-table"><thead><tr><th>種目</th><th>1RM</th><th>4週</th><th></th></tr></thead><tbody>${st.exercises
-      .map((e) => `<tr><td class="name">${esc(e.name)}<div class="sub">${md(e.lastDate)}・${esc(formatLast(e.lastSets))}</div></td><td>${fmt(e.last1rm, 1)}</td><td>${chg(e.change4wPct)}</td><td>${e.stalled ? st_('warning', '停滞') : e.change4wPct > 0 ? st_('good', '伸びている') : ''}</td></tr>`)
+      .map((e) => `<tr><td class="name">${esc(e.name)}<div class="sub">${md(e.lastDate)}・${esc(formatLast(e.lastSets))}</div><div class="sub">自己ベスト ${fmt(e.best1rm, 1)}kg（${esc(String(e.prDate).slice(0, 7).replace('-', '/'))}）</div></td><td>${fmt(e.last1rm, 1)}</td><td>${chg(e.change4wPct)}</td><td>${e.stalled ? st_('warning', '停滞') : e.change4wPct > 0 ? st_('good', '伸びている') : ''}</td></tr>`)
       .join('')}</tbody></table></div>
-    <div class="sub" style="margin-top:8px">記録 ${st.sessions}日分（${md(st.firstDate)}〜${md(st.lastDate)}）。推定1RM = 重量 ×（1 + 回数 ÷ 30）</div></div>
+    <div class="sub" style="margin-top:8px">記録 ${st.sessions.toLocaleString()}日分（${st.firstDate.replaceAll('-', '/')}〜${st.lastDate.replaceAll('-', '/')}）。推定1RM = 重量 ×（1 + 回数 ÷ 30）</div></div>
   </div>`;
 }
 const st_ = (s, label) => `<span class="st ${s}" role="img" aria-label="${label}" title="${label}">${ICON[s]}</span>`;

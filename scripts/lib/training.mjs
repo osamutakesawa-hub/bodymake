@@ -1,6 +1,6 @@
 // トレーニングプログラム・フェーズ・ワークアウト判定
 import { addDays, daysBetween, weekday, weekStart } from './util.mjs';
-import { isCompound, nextTarget, parseRange, formatSets, normalizeName } from './strength.mjs';
+import { isCompound, nextTarget, parseRange, formatSets, normalizeName, workingSets } from './strength.mjs';
 
 const STRENGTH_RE = /strength|筋力|weight|functional|core|コア|cross|クロス|resistance/i;
 const CARDIO_RE = /run|walk|cycl|bike|swim|hiit|elliptical|row|stair|hik|cardio|ラン|ウォーク|ウォーキング|サイクリング|水泳|スイム|エリプティカル|ステア|ハイキング|有酸素|ダンス|dance/i;
@@ -78,7 +78,7 @@ export function phaseFor(config, date) {
   const total = daysBetween(config.profile.startDate, config.goal.targetDate);
   const f = daysBetween(config.profile.startDate, date) / total;
   if (config.goal.mode === 'recomp') {
-    if (f < 0.25) return { key: 'adapt', name: '適応期', mainSets: 3, accSets: 3, mainReps: '6〜10', accReps: '10〜12', rpe: '7〜8', note: '重い日はフォームを固めながら、主種目の基準重量を決める期間。毎回「前回＋1回 or ＋2.5kg」を狙う' };
+    if (f < 0.25) return { key: 'adapt', name: '適応期', mainSets: 3, accSets: 3, mainReps: '6〜10', accReps: '10〜15', rpe: '7〜8', note: '重い日はフォームを固めながら、主種目の基準重量を決める期間。毎回「前回＋1回 or ＋2.5kg」を狙う' };
     if (f < 0.85) return { key: 'build', name: '筋肥大期', mainSets: 4, accSets: 3, mainReps: '6〜10', accReps: '10〜15', rpe: '8〜9', note: '重い日の主種目は4セット。上限の回数に届いたら重量を上げる（ダブルプログレッション）' };
     return { key: 'peak', name: '仕上げ期', mainSets: 3, accSets: 2, mainReps: '6〜8', accReps: '10〜12', rpe: '8', note: '重量は維持してボリュームを少し落とし、疲労を抜きながら仕上げる' };
   }
@@ -150,16 +150,20 @@ export function todaysSession(config, date, ctx) {
 
   // 前回の同じセッションのログがあれば、実際にやった種目で「前回 → 今日の目標」を出す
   const prev = session.kind === 'strength' ? ctx.previous : null;
-  const prevIntensity = prev ? sessionFor(config, prev.date).intensity : null;
+  const prevIntensity = prev ? ctx.intensityOf?.(prev.date) ?? sessionFor(config, prev.date).intensity : null;
   let items;
   if (prev?.exercises?.length) {
-    items = prev.exercises.filter((ex) => ex.kind !== 'cardio' && ex.sets?.some((x) => x.reps > 0)).map((ex) => {
+    items = prev.exercises.filter((ex) => !ex.kind && workingSets(ex.sets).length).map((ex) => {
       const main = isCompound(ex.name);
       const p = prescribe(main);
       const hist = ctx.history?.get(normalizeName(ex.name));
       const [lo] = parseRange(p.reps);
       let target;
-      if (prevIntensity === intensity || (prevIntensity !== 'light' && intensity !== 'light')) {
+      if (intensity === 'light' && prevIntensity === 'light') {
+        // 軽い日は伸ばす日ではないので、前回と同じ内容でOK（加圧などのやり方もそのまま）
+        const bfr = /加圧/.test(ex.note ?? '');
+        target = { text: `${formatSets(workingSets(ex.sets))}（前回どおり${bfr ? '・加圧' : ''}・追い込まない）`, increase: false };
+      } else if (prevIntensity === intensity || (prevIntensity !== 'light' && intensity !== 'light')) {
         target = nextTarget(ex.sets, parseRange(p.reps), p.sets, { deload });
       } else if (intensity === 'light') {
         // 重い日の記録 → 軽い日は約60%の重量

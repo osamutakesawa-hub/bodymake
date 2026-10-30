@@ -162,7 +162,7 @@
    "mainSets": 3,
    "accSets": 3,
    "mainReps": "6〜10",
-   "accReps": "10〜12",
+   "accReps": "10〜15",
    "rpe": "7〜8",
    "note": "重い日はフォームを固めながら、主種目の基準重量を決める期間。毎回「前回＋1回 or ＋2.5kg」を狙う。主種目は最初に。セット間は2〜3分休む。最後のセットは「あと1〜2回できる」まで"
   },
@@ -217,7 +217,7 @@
    {
     "name": "サイドレイズ",
     "main": false,
-    "prescription": "3セット × 10〜12回（RPE 7〜8）",
+    "prescription": "3セット × 10〜15回（RPE 7〜8）",
     "last": "10kg × 11・10・9",
     "lastDate": "2026-10-23",
     "target": "10kg × 12・11・10",
@@ -228,7 +228,7 @@
    {
     "name": "リアデルト（フェイスプル）",
     "main": false,
-    "prescription": "3セット × 10〜12回（RPE 7〜8）",
+    "prescription": "3セット × 10〜15回（RPE 7〜8）",
     "last": "22kg × 11・10・9",
     "lastDate": "2026-10-23",
     "target": "22kg × 12・11・10",
@@ -615,6 +615,7 @@
     "last1rm": 113.3,
     "best1rm": 113.3,
     "prDate": "2026-10-24",
+    "firstDate": "2026-09-19",
     "change4wPct": 6.2,
     "stalled": false,
     "series": [
@@ -675,6 +676,7 @@
     "last1rm": 100,
     "best1rm": 100,
     "prDate": "2026-10-24",
+    "firstDate": "2026-09-19",
     "change4wPct": 7.2,
     "stalled": false,
     "series": [
@@ -735,6 +737,7 @@
     "last1rm": 193.3,
     "best1rm": 193.3,
     "prDate": "2026-10-24",
+    "firstDate": "2026-09-19",
     "change4wPct": 3.5,
     "stalled": false,
     "series": [
@@ -795,6 +798,7 @@
     "last1rm": 57.4,
     "best1rm": 57.4,
     "prDate": "2026-10-17",
+    "firstDate": "2026-09-19",
     "change4wPct": 4.9,
     "stalled": false,
     "series": [
@@ -855,6 +859,7 @@
     "last1rm": 64.2,
     "best1rm": 64.2,
     "prDate": "2026-10-17",
+    "firstDate": "2026-09-19",
     "change4wPct": 4.4,
     "stalled": false,
     "series": [
@@ -915,6 +920,7 @@
     "last1rm": 84.7,
     "best1rm": 84.7,
     "prDate": "2026-10-17",
+    "firstDate": "2026-09-19",
     "change4wPct": 3.3,
     "stalled": false,
     "series": [
@@ -975,6 +981,7 @@
     "last1rm": 95,
     "best1rm": 95,
     "prDate": "2026-10-18",
+    "firstDate": "2026-09-20",
     "change4wPct": 1.8,
     "stalled": false,
     "series": [
@@ -1030,6 +1037,7 @@
     "last1rm": 36.7,
     "best1rm": 36.7,
     "prDate": "2026-10-18",
+    "firstDate": "2026-09-20",
     "change4wPct": 14.7,
     "stalled": false,
     "series": [
@@ -1085,6 +1093,7 @@
     "last1rm": 25.3,
     "best1rm": 25.3,
     "prDate": "2026-10-18",
+    "firstDate": "2026-09-20",
     "change4wPct": 26.5,
     "stalled": false,
     "series": [
@@ -1140,6 +1149,7 @@
     "last1rm": 43.7,
     "best1rm": 43.7,
     "prDate": "2026-10-18",
+    "firstDate": "2026-09-20",
     "change4wPct": 6.6,
     "stalled": false,
     "series": [
@@ -1195,6 +1205,7 @@
     "last1rm": 36.9,
     "best1rm": 36.9,
     "prDate": "2026-10-18",
+    "firstDate": "2026-09-20",
     "change4wPct": 7.9,
     "stalled": false,
     "series": [
@@ -1250,6 +1261,7 @@
     "last1rm": 19.1,
     "best1rm": 19.1,
     "prDate": "2026-10-18",
+    "firstDate": "2026-09-20",
     "change4wPct": 16.5,
     "stalled": false,
     "series": [

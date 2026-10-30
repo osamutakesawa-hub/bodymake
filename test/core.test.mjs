@@ -258,8 +258,39 @@ test('ズンバは有酸素、筋トレの部位はトレ記録から', () => {
   const logs = [{ date: '2026-10-31', exercises: r.exercises }];
   const d = analyze(raw, [], new Date('2026-10-31T12:00:00Z'), { training: logs }); // 土曜＝脚（重）
   assert.deepEqual(d.week.plan.find((p) => p.date === '2026-10-31').logged.sort(), ['cardio', 'strength']);
-  assert.equal(d.week.setsByPart.find((p) => p.part === 'legs').sets, 11);
+  // 16kg×20（ウォームアップ）は除いて10セット
+  assert.equal(d.week.setsByPart.find((p) => p.part === 'legs').sets, 10);
   const next = analyze(raw, [], new Date('2026-11-07T03:00:00Z'), { training: logs }); // 次の土曜
   assert.deepEqual(next.training.items.map((i) => i.name), ['レッグ プレス', 'レッグ エクステンション', 'シーテッド レッグ カール']);
   assert.equal(next.training.items[2].note, '1秒スクイーズ');
+});
+
+test('FitnessPoint の実際の種目名の部位', () => {
+  assert.equal(bodyPart('マシン アシステッド チン アップ'), 'back');
+  assert.equal(bodyPart('ワンアーム ダンベル リストカール オーバー ベンチ'), 'arms');
+  assert.equal(bodyPart('インクライン ダンベル カール'), 'arms');
+  assert.equal(bodyPart('ダンベルインクラインベンチプレス'), 'chest');
+  assert.equal(bodyPart('ダンベル リア フライ'), 'shoulders');
+  assert.equal(bodyPart('T-バーロウ'), 'back');
+  assert.equal(bodyPart('マシン ショルダー (ミリタリー) プレス'), 'shoulders');
+  assert.equal(isCompound('ワンアーム ダンベル リストカール オーバー ベンチ'), false);
+});
+
+test('FitnessPoint の CSV（日本語の出力形式）', () => {
+  const csv = `日付,エクササイズ名,セット数,ウエイト／距離,回数／時間,メモ
+2026/10/26,"ベンチプレス","2","120","1",""
+2026/10/26,"ベンチプレス","1","20","20",""
+2026/10/26,"ジムスタジオ","1","0","40","ズンバ"
+2026/10/26,"トレッドミル","1","4.5","20","傾斜4.5"
+2026/10/26,"プランク","1","0","1","1分"
+2026/10/26,"ベンチプレス","3","120","0","失敗"
+`;
+  const [log] = csvToLogs(csv).logs;
+  const [bench, studio, mill, plank] = log.exercises;
+  assert.deepEqual(bench.sets.map((x) => `${x.weightKg}x${x.reps}`), ['20x20', '120x1', '120x0']); // セット番号順
+  assert.equal(bench.sets[2].note, '失敗');
+  assert.equal(studio.kind, 'cardio');
+  assert.equal(studio.minutes, 40);
+  assert.equal(mill.minutes, 20);
+  assert.equal(plank.kind, 'check');
 });

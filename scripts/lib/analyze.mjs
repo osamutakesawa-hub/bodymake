@@ -2,7 +2,7 @@
 import { addDays, daysBetween, localDate, mean, round, weekStart, dateRange } from './util.mjs';
 import { trendSeries, plannedWeight, plannedBodyFat, plannedLeanMass, normalizeGoal, estimateTdee, dailyTargets, dayKcalAdjust, milestones } from './plan.mjs';
 import { classifyWorkout, todaysSession, plannedStrengthLeft, weekPlan, sessionFor, sessionParts } from './training.mjs';
-import { exerciseHistory, exerciseProgress, weeklySetsByPart, previousSessionLog, recentPRs, PART_LABELS, hasStrength, hasCardio } from './strength.mjs';
+import { exerciseHistory, exerciseProgress, weeklySetsByPart, previousSessionLog, recentPRs, PART_LABELS, hasStrength, hasCardio, inferIntensity } from './strength.mjs';
 import { buildAdvice, mealPlan } from './advice.mjs';
 
 function status(actual, target, { tolerance = 0.1, mode = 'atLeast' } = {}) {
@@ -84,10 +84,10 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false, tr
   const cardioDone = weekDates.reduce((n, d) => n + kindsFor(d).filter((k) => k === 'cardio').length, 0);
   const todayRec = byDate.get(today);
   const doneToday = kindsFor(today);
-  // 筋力の推移は重い日（と通常の日）の記録で判定する。軽い日は重量を落としているため除外
-  const history = exerciseHistory(logs.filter((l) => l.date >= addDays(today, -180)), {
-    skip: (date) => sessionFor(config, date).intensity === 'light',
-  });
+  // 軽い日・重い日は記録の重量から推定（曜日どおりとは限らない）。筋力の推移は軽い日を除いて判定する
+  const inferred = inferIntensity(logs);
+  const intensityOf = (date) => inferred.get(date) ?? (sessionFor(config, date).intensity === 'light' ? 'light' : 'heavy');
+  const history = exerciseHistory(logs, { skip: (date) => intensityOf(date) === 'light' });
   const progress = exerciseProgress(history, today);
 
   const lastSleepMinutes = todayRec?.sleep?.minutes ?? null;
@@ -98,7 +98,8 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false, tr
     lastSleepMinutes,
     stalled,
     doneToday,
-    previous: previousSessionLog(logs, config, today, sessionFor, sessionParts),
+    previous: previousSessionLog(logs, config, today, sessionFor, sessionParts, intensityOf),
+    intensityOf,
     history,
   });
 
@@ -236,7 +237,7 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false, tr
     lastDate: lastLog?.date ?? null,
     exercises: progress.slice(0, 12),
     prs: recentPRs(progress, today).map(({ name, best1rm, prDate }) => ({ name, best1rm, prDate })),
-    stalled: progress.filter((p) => p.stalled && p.compound && p.sessions4w > 0).map(({ name, last1rm, best1rm }) => ({ name, last1rm, best1rm })),
+    stalled: progress.filter((p) => p.stalled && p.compound).slice(0, 3).map(({ name, last1rm, best1rm }) => ({ name, last1rm, best1rm })),
     // 画面の合計と読み取り内容が合わない日（スクショの撮り漏れ・読み違い）
     incomplete: logs.filter((l) => l.check && !l.check.ok && l.date >= addDays(today, -7)).map((l) => ({ date: l.date, ...l.check })),
     declining: progress.filter((p) => p.compound && p.change4wPct !== null && p.change4wPct <= -5).map(({ name, change4wPct }) => ({ name, change4wPct })),
