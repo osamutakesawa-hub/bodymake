@@ -1,5 +1,6 @@
 // トレーニングプログラム・フェーズ・ワークアウト判定
 import { addDays, daysBetween, weekday, weekStart } from './util.mjs';
+import { isCompound, nextTarget, parseRange, formatSets, normalizeName } from './strength.mjs';
 
 const STRENGTH_RE = /strength|筋力|weight|functional|core|コア|cross|クロス|resistance/i;
 const CARDIO_RE = /run|walk|cycl|bike|swim|hiit|elliptical|row|stair|hik|cardio|ラン|ウォーク|ウォーキング|サイクリング|水泳|スイム|エリプティカル|ステア|ハイキング|有酸素|ダンス|dance/i;
@@ -17,6 +18,7 @@ const ex = (name, main = false) => ({ name, main });
 
 export const SESSIONS = {
   back_shoulders: {
+    parts: ['back', 'shoulders'],
     name: '背中・肩',
     kind: 'strength',
     exercises: [
@@ -29,11 +31,13 @@ export const SESSIONS = {
     ],
   },
   legs: {
+    parts: ['legs'],
     name: '脚',
     kind: 'strength',
     exercises: [ex('スクワット', true), ex('ルーマニアン・デッドリフト', true), ex('レッグプレス'), ex('レッグカール'), ex('レッグエクステンション'), ex('カーフレイズ')],
   },
   chest_arms: {
+    parts: ['chest', 'arms'],
     name: '胸・腕',
     kind: 'strength',
     exercises: [
@@ -45,10 +49,10 @@ export const SESSIONS = {
       ex('ハンマーカール'),
     ],
   },
-  push: { name: '上半身プッシュ（胸・肩・三頭）', kind: 'strength', exercises: [ex('ベンチプレス', true), ex('インクライン・ダンベルプレス', true), ex('ショルダープレス', true), ex('サイドレイズ'), ex('トライセプス・プッシュダウン')] },
-  pull: { name: '上半身プル（背中・二頭）', kind: 'strength', exercises: [ex('懸垂 or ラットプルダウン', true), ex('ベントオーバーロウ', true), ex('シーテッドロウ'), ex('フェイスプル'), ex('バーベルカール')] },
-  lower: { name: '下半身A（スクワット中心）', kind: 'strength', exercises: [ex('スクワット', true), ex('ルーマニアン・デッドリフト', true), ex('レッグプレス'), ex('レッグカール'), ex('カーフレイズ')] },
-  lower2: { name: '下半身B（ヒンジ中心）', kind: 'strength', exercises: [ex('デッドリフト', true), ex('ブルガリアン・スクワット', true), ex('ヒップスラスト'), ex('レッグエクステンション'), ex('ハンギングレッグレイズ')] },
+  push: { parts: ['chest', 'shoulders'], name: '上半身プッシュ（胸・肩・三頭）', kind: 'strength', exercises: [ex('ベンチプレス', true), ex('インクライン・ダンベルプレス', true), ex('ショルダープレス', true), ex('サイドレイズ'), ex('トライセプス・プッシュダウン')] },
+  pull: { parts: ['back', 'arms'], name: '上半身プル（背中・二頭）', kind: 'strength', exercises: [ex('懸垂 or ラットプルダウン', true), ex('ベントオーバーロウ', true), ex('シーテッドロウ'), ex('フェイスプル'), ex('バーベルカール')] },
+  lower: { parts: ['legs'], name: '下半身A（スクワット中心）', kind: 'strength', exercises: [ex('スクワット', true), ex('ルーマニアン・デッドリフト', true), ex('レッグプレス'), ex('レッグカール'), ex('カーフレイズ')] },
+  lower2: { parts: ['legs'], name: '下半身B（ヒンジ中心）', kind: 'strength', exercises: [ex('デッドリフト', true), ex('ブルガリアン・スクワット', true), ex('ヒップスラスト'), ex('レッグエクステンション'), ex('ハンギングレッグレイズ')] },
   full: { name: '全身', kind: 'strength', exercises: [ex('スクワット', true), ex('ベンチプレス', true), ex('ベントオーバーロウ', true), ex('ショルダープレス'), ex('プランク')] },
   cardio: { name: '有酸素（Zone2）＋腹筋', kind: 'cardio', exercises: [ex('傾斜ウォーク or バイク 35〜45分（会話できる強度）'), ex('アブローラー 3×10'), ex('プランク 3×45秒')] },
   rest: { name: '休養日', kind: 'rest', exercises: [ex('完全休養（筋肉は休んでいる間に育ちます）'), ex('散歩で歩数目標を達成'), ex('ストレッチ・モビリティ 10分')] },
@@ -63,6 +67,7 @@ export function parseProgramEntry(v = 'rest') {
 export function sessionFor(config, date) {
   return parseProgramEntry(config.program?.[DAY_KEYS[weekday(date)]]);
 }
+export const sessionParts = (key) => SESSIONS[key]?.parts ?? null;
 export const sessionKeyFor = (config, date) => sessionFor(config, date).key;
 
 /**
@@ -137,13 +142,53 @@ export function todaysSession(config, date, ctx) {
   }
   if (session.kind === 'cardio' && ctx.stalled) adjustments.push('停滞対策で有酸素を+10分');
 
-  const items = session.exercises.map((e) => {
-    if (session.kind !== 'strength') return { name: e.name, prescription: '' };
-    const sets = e.main ? mainSets : accSets;
-    const reps = e.main ? mainReps : accReps;
-    const load = intensity === 'light' ? '（重い日の約60%の重量）' : e.main && !deload ? '・前回より+1回 or +2.5kg' : '';
-    return { name: e.name, main: e.main, prescription: `${sets}セット × ${reps}回（RPE ${rpe}）${load}` };
-  });
+  const prescribe = (main) => {
+    const sets = main ? mainSets : accSets;
+    const reps = main ? mainReps : accReps;
+    return { sets, reps, text: `${sets}セット × ${reps}回（RPE ${rpe}）` };
+  };
+
+  // 前回の同じセッションのログがあれば、実際にやった種目で「前回 → 今日の目標」を出す
+  const prev = session.kind === 'strength' ? ctx.previous : null;
+  const prevIntensity = prev ? sessionFor(config, prev.date).intensity : null;
+  let items;
+  if (prev?.exercises?.length) {
+    items = prev.exercises.map((ex) => {
+      const main = isCompound(ex.name);
+      const p = prescribe(main);
+      const hist = ctx.history?.get(normalizeName(ex.name));
+      const [lo] = parseRange(p.reps);
+      let target;
+      if (prevIntensity === intensity || (prevIntensity !== 'light' && intensity !== 'light')) {
+        target = nextTarget(ex.sets, parseRange(p.reps), p.sets, { deload });
+      } else if (intensity === 'light') {
+        // 重い日の記録 → 軽い日は約60%の重量
+        const topW = Math.max(...ex.sets.map((x) => x.weightKg ?? 0));
+        const w = topW ? Math.round((topW * 0.6) / 2.5) * 2.5 : 0;
+        target = { text: `${w ? `${w}kg` : '自重'} × ${Array(p.sets).fill(lo).join('・')}（重い日の約60%）`, increase: false };
+      } else {
+        // 軽い日の記録しかない → 重い日の履歴（軽い日を除いた記録）があればそこから
+        const heavyLast = hist?.sessions.at(-1);
+        target = heavyLast ? nextTarget(heavyLast.sets, parseRange(p.reps), p.sets, { deload }) : null;
+      }
+      return {
+        name: ex.name,
+        main,
+        prescription: p.text,
+        last: formatSets(ex.sets.filter((s) => !s.warmup)),
+        lastDate: prev.date,
+        target: target?.text ?? null,
+        increase: target?.increase ?? false,
+        best1rm: hist ? Math.max(...hist.sessions.map((x) => x.best1rm)) : null,
+      };
+    });
+  } else {
+    items = session.exercises.map((e) => {
+      if (session.kind !== 'strength') return { name: e.name, prescription: '' };
+      const load = intensity === 'light' ? '（重い日の約60%の重量）' : e.main && !deload ? '・前回より+1回 or +2.5kg' : '';
+      return { name: e.name, main: e.main, prescription: prescribe(e.main).text + load };
+    });
+  }
   if (intensity === 'light') items.push({ name: 'ウォーキング or バイク 20分＋ストレッチ', prescription: '血流を上げて回復を促す' });
 
   const intensityNote =
@@ -165,6 +210,8 @@ export function todaysSession(config, date, ctx) {
           : [phase.note, intensityNote].filter(Boolean).join('。'),
     },
     deload,
+    fromLog: Boolean(prev?.exercises?.length),
+    previousDate: prev?.date ?? null,
     items,
     adjustments,
     done: ctx.doneToday?.includes(session.kind) ?? false,

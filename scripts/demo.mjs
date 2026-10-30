@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { analyze } from './lib/analyze.mjs';
 import { loadConfig } from './lib/store.mjs';
 import { addDays, localDate, weekday } from './lib/util.mjs';
+import { SESSIONS, sessionFor } from './lib/training.mjs';
+import { isCompound } from './lib/strength.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = loadConfig(path.join(root, 'config', 'goals.json'));
@@ -46,6 +48,26 @@ for (let i = 0; i < days; i++) {
   });
 }
 
-const data = analyze(demoConfig, records, now, { demo: true });
+// 筋トレログ：重い日は2週ごとに主種目+2.5kg、軽い日は約60%の重量
+const BASE = { 懸垂orラットプルダウン: 55, ベントオーバーロウ: 60, シーテッドロウ: 50, ショルダープレス: 35, サイドレイズ: 8, 'リアデルト（フェイスプル）': 20, スクワット: 80, 'ルーマニアン・デッドリフト': 70, レッグプレス: 140, レッグカール: 40, レッグエクステンション: 45, カーフレイズ: 60, ベンチプレス: 70, 'インクライン・ダンベルプレス': 24, ケーブルフライorディップス: 15, バーベルカール: 30, 'トライセプス・エクステンション': 25, ハンマーカール: 12 };
+const training = [];
+for (const r of records) {
+  if (!r.workouts) continue;
+  const i = records.indexOf(r);
+  const { key, intensity } = sessionFor(demoConfig, r.date);
+  if (SESSIONS[key].kind !== 'strength') continue;
+  const exercises = SESSIONS[key].exercises.map((e) => {
+    const name = e.name.replace(/ or /, 'or');
+    const main = isCompound(name);
+    const base = BASE[name] ?? 30;
+    const step = main ? 2.5 : 1;
+    const w = intensity === 'light' ? Math.round((base * 0.6) / step) * step : base + Math.floor(i / 14) * step;
+    const top = intensity === 'light' ? 14 : main ? 8 + (Math.floor(i / 3) % 3) : 11;
+    return { name: name.replace('or', ' or '), sets: Array.from({ length: intensity === 'light' ? 2 : main ? 3 : 3 }, (_, k) => ({ weightKg: w, reps: Math.max(5, top - k) })) };
+  });
+  training.push({ date: r.date, source: 'demo', exercises });
+}
+
+const data = analyze(demoConfig, records, now, { demo: true, training });
 fs.writeFileSync(path.join(root, 'docs', 'data.json'), JSON.stringify(data, null, 1) + '\n');
 console.log(`デモデータを docs/data.json に書き出しました（today=${data.today}）`);

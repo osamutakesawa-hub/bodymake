@@ -6,18 +6,20 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { analyze } from './lib/analyze.mjs';
 import { loadConfig, loadRecords } from './lib/store.mjs';
+import { loadTrainingLogs } from './lib/training-store.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = loadConfig(path.join(root, 'config', 'goals.json'));
 const records = loadRecords(path.join(root, 'data', 'days'));
+const training = loadTrainingLogs(path.join(root, 'data', 'training'));
 const outFile = path.join(root, 'docs', 'data.json');
 
-if (!records.length) {
+if (!records.length && !training.length) {
   console.log('記録がまだないため、docs/data.json（デモ）はそのままにします');
   process.exit(0);
 }
 
-const data = analyze(config, records, new Date());
+const data = analyze(config, records, new Date(), { training });
 
 if (process.env.AI_COACH === '1') {
   try {
@@ -36,4 +38,4 @@ if (!data.aiCoach && fs.existsSync(outFile)) {
 }
 
 fs.writeFileSync(outFile, JSON.stringify(data, null, 1) + '\n');
-console.log(`docs/data.json を更新（${records.length}日分の記録, today=${data.today}）`);
+console.log(`docs/data.json を更新（${records.length}日分の記録・筋トレログ${training.length}日分, today=${data.today}）`);

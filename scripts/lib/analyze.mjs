@@ -1,7 +1,8 @@
 // 日次レコード + 目標設定 → ダッシュボード用データ
 import { addDays, daysBetween, localDate, mean, round, weekStart, dateRange } from './util.mjs';
 import { trendSeries, plannedWeight, plannedBodyFat, plannedLeanMass, normalizeGoal, estimateTdee, dailyTargets, dayKcalAdjust, milestones } from './plan.mjs';
-import { classifyWorkout, todaysSession, plannedStrengthLeft, weekPlan } from './training.mjs';
+import { classifyWorkout, todaysSession, plannedStrengthLeft, weekPlan, sessionFor, sessionParts } from './training.mjs';
+import { exerciseHistory, exerciseProgress, weeklySetsByPart, previousSessionLog, recentPRs, PART_LABELS } from './strength.mjs';
 import { buildAdvice, mealPlan } from './advice.mjs';
 
 function status(actual, target, { tolerance = 0.1, mode = 'atLeast' } = {}) {
@@ -17,13 +18,21 @@ function workoutKinds(rec) {
   return (rec?.workouts ?? []).map((w) => w.kind ?? classifyWorkout(w.type));
 }
 
-export function analyze(rawConfig, records, now = new Date(), { demo = false } = {}) {
+export function analyze(rawConfig, records, now = new Date(), { demo = false, training: trainingLogs = [] } = {}) {
   const config = normalizeGoal(rawConfig);
   const recomp = config.goal.mode === 'recomp';
   const tz = config.timezone ?? 'Asia/Tokyo';
   const today = localDate(now, tz);
   const sorted = [...records].filter((r) => r.date <= today).sort((a, b) => a.date.localeCompare(b.date));
   const byDate = new Map(sorted.map((r) => [r.date, r]));
+  const logs = trainingLogs.filter((l) => l.date <= today && l.exercises?.length).sort((a, b) => a.date.localeCompare(b.date));
+  const logByDate = new Map(logs.map((l) => [l.date, l]));
+  // ヘルスケアのワークアウト＋筋トレログ（ログがある日は筋トレ1回として数える）
+  const kindsFor = (date) => {
+    const kinds = workoutKinds(byDate.get(date));
+    if (logByDate.has(date) && !kinds.includes('strength')) kinds.push('strength');
+    return kinds;
+  };
   const first = sorted[0]?.date ?? today;
   const from = first < config.profile.startDate ? first : config.profile.startDate;
   const trend = trendSeries(sorted, from <= today ? from : today, today);
@@ -69,10 +78,15 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false } =
   const weekDates = dateRange(monday, today);
   const weekRecs = weekDates.map((d) => byDate.get(d));
   const closedWeekRecs = weekRecs.slice(0, -1);
-  const strengthDone = weekRecs.reduce((n, r) => n + workoutKinds(r).filter((k) => k === 'strength').length, 0);
-  const cardioDone = weekRecs.reduce((n, r) => n + workoutKinds(r).filter((k) => k === 'cardio').length, 0);
+  const strengthDone = weekDates.reduce((n, d) => n + kindsFor(d).filter((k) => k === 'strength').length, 0);
+  const cardioDone = weekDates.reduce((n, d) => n + kindsFor(d).filter((k) => k === 'cardio').length, 0);
   const todayRec = byDate.get(today);
-  const doneToday = workoutKinds(todayRec);
+  const doneToday = kindsFor(today);
+  // 筋力の推移は重い日（と通常の日）の記録で判定する。軽い日は重量を落としているため除外
+  const history = exerciseHistory(logs.filter((l) => l.date >= addDays(today, -180)), {
+    skip: (date) => sessionFor(config, date).intensity === 'light',
+  });
+  const progress = exerciseProgress(history, today);
 
   const lastSleepMinutes = todayRec?.sleep?.minutes ?? null;
   const stalled = recomp ? bfRate !== null && targets.neededWeeklyRateKg > 0 && bfRate >= 0 : recentRateKg !== null && targets.neededWeeklyRateKg > 0 && recentRateKg > -0.1;
@@ -82,6 +96,8 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false } =
     lastSleepMinutes,
     stalled,
     doneToday,
+    previous: previousSessionLog(logs, config, today, sessionFor, sessionParts),
+    history,
   });
 
   // 今日だけのカロリー（重い日は多め・休養日は少なめ。週平均は targets.kcal）
@@ -108,7 +124,19 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false } =
   const weekSteps = mean(closedWeekRecs.map((r) => r?.activity?.steps ?? null));
   const weighDays = weekRecs.filter((r) => r?.weight?.kg).length;
 
+  // 部位別の週セット数（筋肥大の目安：1部位あたり週10〜20セット）
+  const [setMin, setMax] = config.weekly.setsPerMuscle ?? [10, 20];
+  const partsInProgram = new Set(['back', 'shoulders', 'legs', 'chest', 'arms']);
+  const setsThisWeek = weeklySetsByPart(logs, monday, today);
+  const setsByPart = logs.length
+    ? [...partsInProgram].map((part) => {
+        const sets = setsThisWeek[part] ?? 0;
+        return { part, label: PART_LABELS[part], sets, min: setMin, max: setMax, status: sets > setMax + 2 ? 'warning' : sets >= setMin ? 'good' : 'pending' };
+      })
+    : [];
+
   const week = {
+    setsByPart,
     start: monday,
     end: addDays(monday, 6),
     daysLeft: daysBetween(today, addDays(monday, 6)) + 1,
@@ -129,7 +157,7 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false } =
       { key: 'weighins', label: '体重測定', actual: weighDays, target: daysElapsed, unit: '日', status: weighDays >= daysElapsed ? 'good' : weighDays >= daysElapsed - 1 ? 'warning' : 'critical' },
     ].filter((g) => g.target !== 0),
     plan: weekPlan(config, monday).map((d) => {
-      const kinds = workoutKinds(byDate.get(d.date));
+      const kinds = kindsFor(d.date);
       return { ...d, done: d.kind === 'rest' ? null : kinds.includes(d.kind) || (d.kind === 'strength' && kinds.includes('strength')), logged: kinds, past: d.date < today, today: d.date === today };
     }),
   };
@@ -198,7 +226,19 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false } =
 
   const started = weighIns.length && today >= config.profile.startDate;
   const deltaVsPlanKg = started ? goal.deltaVsPlanKg : null;
+  const lastLog = logs.at(-1) ?? null;
+  const strength = {
+    hasData: logs.length > 0,
+    sessions: logs.length,
+    firstDate: logs[0]?.date ?? null,
+    lastDate: lastLog?.date ?? null,
+    exercises: progress.slice(0, 12),
+    prs: recentPRs(progress, today).map(({ name, best1rm, prDate }) => ({ name, best1rm, prDate })),
+    stalled: progress.filter((p) => p.stalled && p.compound && p.sessions4w > 0).map(({ name, last1rm, best1rm }) => ({ name, last1rm, best1rm })),
+    declining: progress.filter((p) => p.compound && p.change4wPct !== null && p.change4wPct <= -5).map(({ name, change4wPct }) => ({ name, change4wPct })),
+  };
   const advice = buildAdvice({
+    strength,
     mode: config.goal.mode,
     bfRate,
     leanRate,
@@ -222,7 +262,7 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false } =
     .map((p) => ({ ...p, plan: plannedWeight(config, p.date), planBf: plannedBodyFat(config, p.date), planLean: plannedLeanMass(config, p.date) }));
   const daily = dateRange(addDays(today, -27), today).map((d) => {
     const r = byDate.get(d);
-    const kinds = workoutKinds(r);
+    const kinds = kindsFor(d);
     return {
       date: d,
       kcal: r?.nutrition?.kcal ?? null,
@@ -268,6 +308,7 @@ export function analyze(rawConfig, records, now = new Date(), { demo = false } =
     milestones: milestones(config, trend, today),
     advice,
     sources,
+    strength,
     series: { weight: weightSeries, daily },
     aiCoach: null,
   };

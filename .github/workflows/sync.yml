@@ -1,10 +1,15 @@
 name: Sync health data
 
 # iPhone のショートカットが repository_dispatch (event_type: health-sync) を送ると起動
+# FitnessPoint の CSV・スクリーンショットが data/inbox/ に届いたときも起動
 # 毎朝（JST 5:13）にも再計算して「今日」の目標を更新
 on:
   repository_dispatch:
     types: [health-sync]
+  push:
+    paths:
+      - 'data/inbox/**'
+      - '!data/inbox/failed/**'
   schedule:
     - cron: '13 20 * * *'
   workflow_dispatch:
@@ -25,6 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # イベント時点ではなくブランチの最新を使う（連続送信で前の実行が取り込んだ分と競合しないように）
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -35,18 +43,23 @@ jobs:
         if: github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && inputs.payload != '')
         run: node scripts/ingest.mjs --event "$GITHUB_EVENT_PATH"
 
+      - name: Import training log (FitnessPoint)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/import-training.mjs
+
       - name: Analyze
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # AIコーチは毎朝の定期実行と手動実行のときだけ（同期のたびに呼ばない）
-          AI_COACH: ${{ secrets.ANTHROPIC_API_KEY != '' && github.event_name != 'repository_dispatch' && '1' || '0' }}
+          AI_COACH: ${{ secrets.ANTHROPIC_API_KEY != '' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '1' || '0' }}
         run: node scripts/build.mjs
 
       - name: Commit
         run: |
           git config user.name "bodymake-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data docs/data.json
+          git add -A data docs/data.json
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -m "sync: $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M') (${{ github.event_name }})"
           for i in 1 2 3; do git pull --rebase && git push && break; sleep 3; done

@@ -36,6 +36,8 @@ function summarize(d) {
     week: { goals: d.week.goals, plan: d.week.plan.map(({ date, name, done }) => ({ date, name, done })) },
     training: d.training,
     milestones: d.milestones,
+    strength: d.strength ? { ...d.strength, exercises: d.strength.exercises.map(({ series, ...e }) => e) } : null,
+    setsByPart: d.week.setsByPart,
     ruleAdvice: d.advice.map(({ level, title, detail }) => ({ level, title, detail })),
     last14days: d.series.daily.slice(-14),
   };

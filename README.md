@@ -18,6 +18,7 @@ iPhone の **ヘルスケア** に集まる「体重・睡眠・食事・トレ�
 | **今週の目標** | 月〜日の予定と実績、筋トレ/有酸素回数、平均カロリー・タンパク質・睡眠・歩数、体重変化、測定日数 |
 | **3月末ゴール** | 目標体重・体脂肪率、進捗バー、今のペースでの3月末予測、必要ペース（安全上限つき） |
 | **マイルストーン** | 月末ごとの目標体重・体脂肪率と達成判定 |
+| **筋力の推移** | FitnessPoint のログ（CSV・スクリーンショット）から、種目ごとの推定1RM、4週間の伸び、停滞、部位別の週セット数を表示。今日のメニューに「前回 → 今日の目標重量」を表示 |
 | **推移** | 体重（測定値・トレンド・計画ライン）、カロリー・タンパク質・睡眠の28日グラフ |
 
 ### 分析のしくみ
@@ -85,11 +86,18 @@ GitHub → Settings → **Pages** → Source: *Deploy from a branch* → Branch:
 
 各アプリ → ヘルスケア連携をオンにします。GitHub のトークンを作り、ショートカット「BodyMake 同期」を作って、オートメーションで1日数回自動実行します。
 
-### 5. （任意）AIコーチを有効にする
+### 5. FitnessPoint のトレーニングログを連携する
+
+👉 **[guide/fitnesspoint.md](guide/fitnesspoint.md)**
+
+過去ログは CSV で一括インポートし、毎日の記録はスクリーンショットを共有シートから送ります。スクリーンショットの読み取りには次の `ANTHROPIC_API_KEY` が必要です。
+
+### 6. （任意）AIコーチを有効にする
 
 Settings → Secrets and variables → Actions → **New repository secret** で `ANTHROPIC_API_KEY` を登録します。
 毎朝の定期実行で Claude（`claude-opus-5-5`）が、その日の記録と目標をもとにコメントを生成し、ダッシュボードに「AIコーチ」として表示します。
-登録しない場合は、ルールベースの提案だけが表示されます。
+このキーは、FitnessPoint のスクリーンショットの読み取りにも使います。
+登録しない場合は、ルールベースの提案だけが表示されます（CSV のインポートはキーなしで使えます）。
 
 ---
 
@@ -98,13 +106,17 @@ Settings → Secrets and variables → Actions → **New repository secret** で
 ```
 config/goals.json          目標・プロフィール・トレーニング予定（編集する）
 data/days/YYYY-MM-DD.json  iPhone から届いた日次データ（自動）
+data/inbox/                FitnessPoint の CSV・スクショの受け口（取り込み後に削除）
+data/training/YYYY-MM-DD.json  筋トレログ（種目・重量・回数）
 docs/index.html            ダッシュボード
 docs/data.json             分析結果（自動生成）
 scripts/ingest.mjs         受信データの正規化・保存
 scripts/build.mjs          分析 → docs/data.json
 scripts/demo.mjs           サンプルデータでデモ生成
+scripts/import-training.mjs  FitnessPoint の CSV・スクショの取り込み
 scripts/lib/               分析ロジック（plan / training / advice / analyze / ai-coach）
 guide/iphone-shortcut.md   iPhone 連携手順
+guide/fitnesspoint.md      FitnessPoint 連携手順
 .github/workflows/sync.yml 同期・毎朝の再計算
 ```
 

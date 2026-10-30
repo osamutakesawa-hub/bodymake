@@ -108,6 +108,20 @@ export function buildAdvice(ctx) {
     add('info', 'training', '今日のメニューを調整しました', ctx.training.adjustments.join(' / '));
   }
 
+  // --- 筋力（FitnessPoint のログ） ---
+  const st = ctx.strength;
+  if (st?.hasData) {
+    if (st.declining.length) {
+      add('warning', 'training', `主要種目の推定1RMが下がっています：${st.declining.map((d) => `${d.name}（${d.change4wPct}%）`).join('、')}`, '4週間で5%以上の低下は、筋肉が落ち始めているサインです。重い日の前日と当日のカロリーを+200kcal、睡眠を7時間以上確保し、回復週を前倒ししてください。');
+    }
+    if (st.stalled.length) {
+      add('info', 'training', `3週間伸びていない種目：${st.stalled.map((d) => d.name).join('、')}`, '①回数レンジを変える（6〜8回 ⇄ 10〜12回）②同じ部位の別種目に3〜4週間入れ替える ③疲労が溜まっているなら回復週を入れる、のどれかを試しましょう。');
+    }
+    if (st.prs.length) {
+      add('good', 'training', `今週の自己ベスト更新：${st.prs.map((p) => p.name).join('、')}`, `推定1RM ${st.prs.map((p) => `${p.name} ${p.best1rm}kg`).join('・')}。体脂肪を落としながら筋力が伸びているのは、筋肉が増えている良いサインです。`);
+    }
+  }
+
   // --- データ ---
   for (const s of ctx.staleSources) {
     add('info', 'data', `${s.label}のデータが${s.days}日届いていません`, 'iPhoneのショートカット（オートメーション）が動いているか確認してください。');

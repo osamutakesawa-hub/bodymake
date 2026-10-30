@@ -130,6 +130,13 @@ h3 { font-size: 14px; margin: 0 0 8px; color: var(--ink-2); font-weight: 600; }
 .menu li:first-child { border-top: 0; }
 .menu li .rx { display: block; color: var(--ink-2); font-size: 13px; }
 .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); margin-right: 4px; }
+.menu li .prev { display: block; font-size: 12px; color: var(--muted); }
+.menu li .goal { display: block; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.menu li .goal.up { color: var(--good-text); }
+select { font: inherit; font-size: 13px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); max-width: 100%; }
+.st-table td.name { text-align: left; white-space: normal; }
+.st-table .up { color: var(--good-text); }
+.st-table .down { color: var(--critical); }
 .adjust { margin-top: 10px; font-size: 13px; color: var(--ink-2); background: var(--surface-2); border-radius: 10px; padding: 8px 10px; }
 
 .advice { list-style: none; margin: 0; padding: 0; }
@@ -209,6 +216,7 @@ const signed = (v, d = 0) => (v == null ? '—' : (v > 0 ? '+' : '') + fmt(v, d)
 const st = (s) => `<span class="st ${s}" role="img" aria-label="${STATUS_LABEL[s] ?? s}" title="${STATUS_LABEL[s] ?? s}">${ICON[s] ?? ''}</span>`;
 
 function valueText(g) {
+  if (g.key === 'sets') return `${fmt(g.actual)} <span>/ ${g.min}〜${g.max} セット</span>`;
   if (g.unit === 'min') return `${hm(g.actual)} <span>/ ${hm(g.target)}</span>`;
   if (g.key === 'training') return g.target == null ? '<span>休養日</span>' : g.actual ? '完了' : '<span>未実施</span>';
   if (g.key === 'weighin') return g.actual == null ? '<span>未測定</span>' : `${fmt(g.actual, 1)} kg`;
@@ -334,7 +342,7 @@ function render(d) {
     <div class="countdown"><div class="sub">${md(g.targetDate)} のゴールまで</div><b>${g.daysLeft}</b> 日</div>
   </header>
   ${d.demo ? '<div class="banner">これはサンプルデータのデモ表示です。iPhoneから同期すると自分のデータに置き換わります。</div>' : ''}
-  <nav class="chips"><a href="#today">今日</a><a href="#week">今週</a><a href="#goal">3月末ゴール</a><a href="#milestones">マイルストーン</a><a href="#trends">推移</a></nav>
+  <nav class="chips"><a href="#today">今日</a><a href="#week">今週</a><a href="#goal">3月末ゴール</a><a href="#milestones">マイルストーン</a><a href="#strength">筋力</a><a href="#trends">推移</a></nav>
 
   <div class="grid tiles" style="margin-top:8px">
     ${recomp ? `
@@ -362,7 +370,10 @@ function render(d) {
       <div class="card menu">
         <h3>今日のトレーニング</h3>
         <div style="margin-bottom:8px"><span class="pill">${esc(d.training.phase.name)}</span>${d.training.deload ? '<span class="pill">回復週</span>' : ''}<b>${esc(d.training.name)}</b>${d.training.done ? ' ' + st('good') : ''}</div>
-        <ol>${d.training.items.map((i) => `<li>${i.main ? '<b>' + esc(i.name) + '</b>' : esc(i.name)}${i.prescription ? `<span class="rx">${esc(i.prescription)}</span>` : ''}</li>`).join('')}</ol>
+        ${d.training.fromLog ? `<div class="sub" style="margin-bottom:6px">前回の同じメニュー（${md(d.training.previousDate)}）の記録から今日の目標を出しています</div>` : ''}
+        <ol>${d.training.items.map((i) => `<li>${i.main ? '<b>' + esc(i.name) + '</b>' : esc(i.name)}${
+          i.target ? `<span class="goal ${i.increase ? 'up' : ''}">目標 ${esc(i.target)}</span><span class="prev">前回 ${esc(i.last)}・${esc(i.prescription)}</span>` : i.prescription ? `<span class="rx">${esc(i.prescription)}</span>${i.last ? `<span class="prev">前回 ${esc(i.last)}</span>` : ''}` : ''
+        }</li>`).join('')}</ol>
         <div class="adjust">${esc(d.training.phase.note)}${d.training.adjustments.map((a) => `<br>⚙ ${esc(a)}`).join('')}</div>
       </div>
       <div class="card">
@@ -376,7 +387,10 @@ function render(d) {
   <section id="week">
     <h2>今週の目標 <small>${md(d.week.start)}〜${md(d.week.end)}</small></h2>
     <div class="week-strip">${d.week.plan.map((p) => `<div class="day ${p.today ? 'today' : ''}"><div class="dw">${wd(p.date)}<br>${md(p.date)}</div><div class="dn" title="${esc(p.name)}">${esc(p.name.replace(/（.*）/, ''))}</div><div class="it">${p.intensity === 'heavy' ? '重' : p.intensity === 'light' ? '軽' : p.kind === 'rest' ? '休' : ''}</div>${p.kind === 'rest' ? st('good') : p.done ? st('good') : p.past ? st('critical') : st('pending')}</div>`).join('')}</div>
-    <div class="card">${d.week.goals.map((x) => goalRow(x, { bar: ['strength', 'cardio', 'protein', 'steps', 'sleep'].includes(x.key) })).join('')}</div>
+    <div class="grid g2">
+      <div class="card">${d.week.goals.map((x) => goalRow(x, { bar: ['strength', 'cardio', 'protein', 'steps', 'sleep'].includes(x.key) })).join('')}</div>
+      ${d.week.setsByPart?.length ? `<div class="card"><h3>部位別のセット数（今週）</h3>${d.week.setsByPart.map((p) => goalRow({ key: 'sets', label: p.label, actual: p.sets, target: p.min, min: p.min, max: p.max, status: p.status })).join('')}<div class="sub" style="margin-top:8px">筋肥大の目安は1部位あたり週${d.week.setsByPart[0].min}〜${d.week.setsByPart[0].max}セット（軽い日も含む）</div></div>` : ''}
+    </div>
   </section>
 
   <section id="goal">
@@ -399,6 +413,11 @@ function render(d) {
   <section id="milestones">
     <h2>マイルストーン</h2>
     <div class="card"><ul class="timeline">${d.milestones.map((m) => `<li>${st(m.status === 'achieved' ? 'good' : m.status === 'missed' ? 'critical' : 'pending')}<div><div class="d">${esc(m.date.replaceAll('-', '/'))}${m.daysLeft >= 0 ? `・あと${m.daysLeft}日` : ''}</div><div>${esc(m.label)}</div></div><div class="goalv">${g.mode === 'recomp' ? `体脂肪 ${fmt(m.targetBodyFatPct, 1)}%<span>除脂肪 ${fmt(m.targetLeanMassKg, 1)}kg・体重 ${fmt(m.targetWeightKg, 1)}kg</span>` : `${fmt(m.targetWeightKg, 1)} kg<span>体脂肪 ${fmt(m.targetBodyFatPct, 1)}%</span>`}</div></li>`).join('')}</ul></div>
+  </section>
+
+  <section id="strength">
+    <h2>筋力の推移 <small>FitnessPoint のログ・重い日の推定1RM</small></h2>
+    ${strengthSection(d.strength)}
   </section>
 
   <section id="trends">
@@ -429,9 +448,42 @@ function render(d) {
     () => drawChart($('#c-protein'), { points: pts, bars: true, series: [{ key: 'proteinG', color: 'var(--series-1)' }], target: t.proteinG, yMin: 0, yFmt: (v) => fmt(v), tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br>タンパク質 <b>${fmt(p.proteinG)}</b> g` }),
     () => drawChart($('#c-sleep'), { points: pts.map((p) => ({ ...p, sleepH: p.sleepMinutes == null ? null : p.sleepMinutes / 60 })), bars: true, series: [{ key: 'sleepH', color: 'var(--series-1)' }], target: t.sleepMinutes / 60, yMin: 0, yFmt: (v) => v.toFixed(1) + 'h', tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br>睡眠 <b>${hm(p.sleepMinutes)}</b>` }),
   ];
+  if (d.strength?.hasData && d.strength.exercises.length) {
+    const sel = $('#ex-select');
+    let saved = 0;
+    try { saved = Number(localStorage.getItem('bm-ex') ?? 0); } catch {}
+    if (saved < d.strength.exercises.length) sel.value = String(saved);
+    const drawEx = () => {
+      const e = d.strength.exercises[Number(sel.value)];
+      drawChart($('#c-e1rm'), { points: e.series, height: 220, series: [{ key: 'e1rm', color: 'var(--series-1)' }, { key: 'e1rm', color: 'var(--series-1)', type: 'dots' }], yFmt: (v) => v.toFixed(0), tipFmt: (p) => `${md(p.date)}（${wd(p.date)}）<br>推定1RM <b>${fmt(p.e1rm, 1)}</b> kg<br>トップセット ${esc(p.top)}` });
+    };
+    sel.addEventListener('change', () => { try { localStorage.setItem('bm-ex', sel.value); } catch {} drawEx(); });
+    draws.push(drawEx);
+  }
   const drawAll = () => draws.forEach((f) => f());
   drawAll();
   let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawAll, 150); });
+}
+
+function strengthSection(st) {
+  if (!st?.hasData) {
+    return `<div class="card"><p class="empty">FitnessPoint の記録がまだありません。過去ログの CSV か、トレーニング後のスクリーンショットを送ると、種目ごとの重量・回数・推定1RMの推移と、次回の目標重量が表示されます（手順：guide/fitnesspoint.md）。</p></div>`;
+  }
+  const opts = st.exercises.map((e, i) => `<option value="${i}">${esc(e.name)}</option>`).join('');
+  const chg = (v) => (v == null ? '—' : `<span class="${v > 0 ? 'up' : v < 0 ? 'down' : ''}">${v > 0 ? '+' : ''}${fmt(v, 1)}%</span>`);
+  return `<div class="grid g2">
+    <div class="card"><h3>推定1RMの推移</h3><div style="margin-bottom:6px"><select id="ex-select" aria-label="種目">${opts}</select></div>${chartShell('c-e1rm', 220)}</div>
+    <div class="card"><h3>種目ごとの状態</h3><div class="table-scroll" style="max-height:none"><table class="st-table"><thead><tr><th>種目</th><th>1RM</th><th>4週</th><th></th></tr></thead><tbody>${st.exercises
+      .map((e) => `<tr><td class="name">${esc(e.name)}<div class="sub">${md(e.lastDate)}・${esc(formatLast(e.lastSets))}</div></td><td>${fmt(e.last1rm, 1)}</td><td>${chg(e.change4wPct)}</td><td>${e.stalled ? st_('warning', '停滞') : e.change4wPct > 0 ? st_('good', '伸びている') : ''}</td></tr>`)
+      .join('')}</tbody></table></div>
+    <div class="sub" style="margin-top:8px">記録 ${st.sessions}日分（${md(st.firstDate)}〜${md(st.lastDate)}）。推定1RM = 重量 ×（1 + 回数 ÷ 30）</div></div>
+  </div>`;
+}
+const st_ = (s, label) => `<span class="st ${s}" role="img" aria-label="${label}" title="${label}">${ICON[s]}</span>`;
+function formatLast(sets) {
+  if (!sets?.length) return '';
+  const same = sets.every((x) => x.weightKg === sets[0].weightKg);
+  return same ? `${sets[0].weightKg || '自重'}${sets[0].weightKg ? 'kg' : ''} × ${sets.map((x) => x.reps).join('・')}` : sets.map((x) => `${x.weightKg}×${x.reps}`).join(', ');
 }
 
 function aiCard(ai) {

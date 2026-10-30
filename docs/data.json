@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-10-29T03:00:00.000Z",
- "today": "2026-10-29",
+ "generatedAt": "2026-10-30T03:00:00.000Z",
+ "today": "2026-10-30",
  "demo": true,
  "profile": {
   "sex": "male",
@@ -10,7 +10,7 @@
  "current": {
   "trendWeightKg": 85.5,
   "lastWeightKg": 85.6,
-  "lastWeighDate": "2026-10-29",
+  "lastWeighDate": "2026-10-30",
   "bodyFatPct": 25.2,
   "lastBodyFatPct": 24.1,
   "leanMassKg": 63.9,
@@ -38,13 +38,13 @@
   "neededWeeklyRateKg": 0.14,
   "maxWeeklyRateKg": 0.43,
   "fatToLoseKg": 3,
-  "deficit": 153,
+  "deficit": 154,
   "goalAtRisk": false,
   "kcalFloored": false,
-  "daysLeft": 153,
-  "kcalToday": 2190,
-  "carbsToday": 233,
-  "dayAdjustKcal": -110
+  "daysLeft": 152,
+  "kcalToday": 2450,
+  "carbsToday": 298,
+  "dayAdjustKcal": 150
  },
  "todayGoals": [
   {
@@ -67,7 +67,7 @@
    "key": "kcal",
    "label": "カロリー",
    "actual": 1180,
-   "target": 2190,
+   "target": 2450,
    "unit": "kcal",
    "status": "pending"
   },
@@ -91,7 +91,7 @@
    "key": "carbs",
    "label": "炭水化物",
    "actual": 130,
-   "target": 233,
+   "target": 298,
    "unit": "g",
    "status": "good"
   },
@@ -106,56 +106,56 @@
   {
    "key": "training",
    "label": "トレーニング",
-   "actual": null,
-   "target": null,
+   "actual": 0,
+   "target": 1,
    "unit": "",
-   "status": "good",
-   "note": "休養日"
+   "status": "pending",
+   "note": "背中・肩（がっつり）"
   }
  ],
  "remainingToday": {
-  "kcal": 1010,
+  "kcal": 1270,
   "proteinG": 83
  },
  "meals": [
   {
    "key": "breakfast",
    "label": "朝食",
-   "kcal": 550,
+   "kcal": 610,
    "proteinG": 43,
-   "carbsG": 58,
-   "idea": "卵2個＋全粒粉トースト＋ギリシャヨーグルト"
+   "carbsG": 75,
+   "idea": "ご飯150g＋納豆＋味噌汁＋ゆで卵"
   },
   {
    "key": "lunch",
    "label": "昼食",
-   "kcal": 770,
-   "proteinG": 60,
-   "carbsG": 82,
-   "idea": "コンビニ：サラダチキン＋おにぎり2個＋サラダ"
+   "kcal": 740,
+   "proteinG": 51,
+   "carbsG": 89,
+   "idea": "刺身定食（ご飯普通盛り）"
   },
   {
    "key": "snack",
-   "label": "間食",
-   "kcal": 220,
-   "proteinG": 17,
-   "carbsG": 23,
-   "idea": "ギリシャヨーグルト＋ナッツ10g"
+   "label": "トレ前後",
+   "kcal": 370,
+   "proteinG": 26,
+   "carbsG": 45,
+   "idea": "ゆで卵2個"
   },
   {
    "key": "dinner",
    "label": "夕食",
-   "kcal": 660,
+   "kcal": 740,
    "proteinG": 51,
-   "carbsG": 70,
-   "idea": "豚ヒレの生姜焼き＋ご飯150g＋温野菜"
+   "carbsG": 89,
+   "idea": "鶏もも（皮なし）の鍋＋〆なし"
   }
  ],
  "training": {
-  "key": "rest",
-  "intensity": "normal",
-  "name": "休養日",
-  "kind": "rest",
+  "key": "back_shoulders",
+  "intensity": "heavy",
+  "name": "背中・肩（がっつり）",
+  "kind": "strength",
   "phase": {
    "key": "adapt",
    "name": "適応期",
@@ -164,30 +164,122 @@
    "mainReps": "6〜10",
    "accReps": "10〜12",
    "rpe": "7〜8",
-   "note": "今日は完全休養。週6回のトレーニングで伸ばすための大事な回復日です。タンパク質はトレ日と同じだけ摂りましょう"
+   "note": "重い日はフォームを固めながら、主種目の基準重量を決める期間。毎回「前回＋1回 or ＋2.5kg」を狙う。主種目は最初に。セット間は2〜3分休む。最後のセットは「あと1〜2回できる」まで"
   },
   "deload": false,
+  "fromLog": true,
+  "previousDate": "2026-10-23",
   "items": [
    {
-    "name": "完全休養（筋肉は休んでいる間に育ちます）",
-    "prescription": ""
+    "name": "懸垂 or ラットプルダウン",
+    "main": true,
+    "prescription": "3セット × 6〜10回（RPE 7〜8）",
+    "last": "60kg × 10・9・8",
+    "lastDate": "2026-10-23",
+    "target": "60kg × 10・10・9",
+    "increase": false,
+    "best1rm": 80
    },
    {
-    "name": "散歩で歩数目標を達成",
-    "prescription": ""
+    "name": "ベントオーバーロウ",
+    "main": true,
+    "prescription": "3セット × 6〜10回（RPE 7〜8）",
+    "last": "65kg × 10・9・8",
+    "lastDate": "2026-10-23",
+    "target": "65kg × 10・10・9",
+    "increase": false,
+    "best1rm": 86.7
    },
    {
-    "name": "ストレッチ・モビリティ 10分",
-    "prescription": ""
+    "name": "シーテッドロウ",
+    "main": true,
+    "prescription": "3セット × 6〜10回（RPE 7〜8）",
+    "last": "55kg × 10・9・8",
+    "lastDate": "2026-10-23",
+    "target": "55kg × 10・10・9",
+    "increase": false,
+    "best1rm": 73.3
+   },
+   {
+    "name": "ショルダープレス",
+    "main": true,
+    "prescription": "3セット × 6〜10回（RPE 7〜8）",
+    "last": "40kg × 10・9・8",
+    "lastDate": "2026-10-23",
+    "target": "40kg × 10・10・9",
+    "increase": false,
+    "best1rm": 53.3
+   },
+   {
+    "name": "サイドレイズ",
+    "main": false,
+    "prescription": "3セット × 10〜12回（RPE 7〜8）",
+    "last": "10kg × 11・10・9",
+    "lastDate": "2026-10-23",
+    "target": "10kg × 12・11・10",
+    "increase": false,
+    "best1rm": 13.7
+   },
+   {
+    "name": "リアデルト（フェイスプル）",
+    "main": false,
+    "prescription": "3セット × 10〜12回（RPE 7〜8）",
+    "last": "22kg × 11・10・9",
+    "lastDate": "2026-10-23",
+    "target": "22kg × 12・11・10",
+    "increase": false,
+    "best1rm": 30.1
    }
   ],
   "adjustments": [],
   "done": false
  },
  "week": {
+  "setsByPart": [
+   {
+    "part": "back",
+    "label": "背中",
+    "sets": 6,
+    "min": 10,
+    "max": 20,
+    "status": "pending"
+   },
+   {
+    "part": "shoulders",
+    "label": "肩",
+    "sets": 6,
+    "min": 10,
+    "max": 20,
+    "status": "pending"
+   },
+   {
+    "part": "legs",
+    "label": "脚",
+    "sets": 12,
+    "min": 10,
+    "max": 20,
+    "status": "good"
+   },
+   {
+    "part": "chest",
+    "label": "胸",
+    "sets": 6,
+    "min": 10,
+    "max": 20,
+    "status": "pending"
+   },
+   {
+    "part": "arms",
+    "label": "腕",
+    "sets": 6,
+    "min": 10,
+    "max": 20,
+    "status": "pending"
+   }
+  ],
   "start": "2026-10-26",
   "end": "2026-11-01",
-  "daysLeft": 4,
+  "daysLeft": 3,
   "strengthNeeded": 3,
   "goals": [
    {
@@ -201,7 +293,7 @@
    {
     "key": "bf",
     "label": "体脂肪率の変化",
-    "actual": -0.2,
+    "actual": -0.19,
     "target": -0.15,
     "unit": "%",
     "status": "good"
@@ -209,7 +301,7 @@
    {
     "key": "lean",
     "label": "除脂肪体重の変化",
-    "actual": 0.12,
+    "actual": 0.1,
     "target": 0.07,
     "unit": "kg",
     "status": "good"
@@ -217,7 +309,7 @@
    {
     "key": "kcal",
     "label": "平均カロリー",
-    "actual": 2250,
+    "actual": 2230,
     "target": 2300,
     "unit": "kcal",
     "status": "good"
@@ -225,15 +317,15 @@
    {
     "key": "protein",
     "label": "平均タンパク質",
-    "actual": 175,
+    "actual": 168,
     "target": 171,
     "unit": "g",
-    "status": "good"
+    "status": "warning"
    },
    {
     "key": "sleep",
     "label": "平均睡眠",
-    "actual": 388,
+    "actual": 387,
     "target": 450,
     "unit": "min",
     "status": "critical"
@@ -241,16 +333,16 @@
    {
     "key": "steps",
     "label": "平均歩数",
-    "actual": 6040,
+    "actual": 6590,
     "target": 8000,
     "unit": "歩",
-    "status": "critical"
+    "status": "warning"
    },
    {
     "key": "weighins",
     "label": "体重測定",
-    "actual": 4,
-    "target": 4,
+    "actual": 5,
+    "target": 5,
     "unit": "日",
     "status": "good"
    }
@@ -303,8 +395,8 @@
     "kind": "rest",
     "done": null,
     "logged": [],
-    "past": false,
-    "today": true
+    "past": true,
+    "today": false
    },
    {
     "date": "2026-10-30",
@@ -315,7 +407,7 @@
     "done": false,
     "logged": [],
     "past": false,
-    "today": false
+    "today": true
    },
    {
     "date": "2026-10-31",
@@ -356,8 +448,8 @@
   "targetBodyFatPct": 22,
   "startWeightKg": 86,
   "startBodyFatPct": 26.1,
-  "daysLeft": 153,
-  "weeksLeft": 21.9,
+  "daysLeft": 152,
+  "weeksLeft": 21.7,
   "progressPct": 21,
   "plannedTodayKg": 85.6,
   "plannedTodayBodyFatPct": 25.23,
@@ -371,9 +463,9 @@
    "date": "2026-11-30",
    "label": "習慣化：週6回のトレーニングと毎朝の測定",
    "targetWeightKg": 85.3,
-   "targetBodyFatPct": 24.56,
+   "targetBodyFatPct": 24.57,
    "targetLeanMassKg": 64.4,
-   "daysLeft": 32,
+   "daysLeft": 31,
    "status": "upcoming",
    "actualWeightKg": null,
    "actualBodyFatPct": null,
@@ -383,9 +475,9 @@
    "date": "2026-12-31",
    "label": "年末年始も週5回以上をキープ",
    "targetWeightKg": 85,
-   "targetBodyFatPct": 23.9,
+   "targetBodyFatPct": 23.91,
    "targetLeanMassKg": 64.7,
-   "daysLeft": 63,
+   "daysLeft": 62,
    "status": "upcoming",
    "actualWeightKg": null,
    "actualBodyFatPct": null,
@@ -397,7 +489,7 @@
    "targetWeightKg": 84.7,
    "targetBodyFatPct": 23.25,
    "targetLeanMassKg": 65,
-   "daysLeft": 94,
+   "daysLeft": 93,
    "status": "upcoming",
    "actualWeightKg": null,
    "actualBodyFatPct": null,
@@ -409,7 +501,7 @@
    "targetWeightKg": 84.4,
    "targetBodyFatPct": 22.66,
    "targetLeanMassKg": 65.3,
-   "daysLeft": 122,
+   "daysLeft": 121,
    "status": "upcoming",
    "actualWeightKg": null,
    "actualBodyFatPct": null,
@@ -421,7 +513,7 @@
    "targetWeightKg": 84.1,
    "targetBodyFatPct": 22,
    "targetLeanMassKg": 65.6,
-   "daysLeft": 153,
+   "daysLeft": 152,
    "status": "upcoming",
    "actualWeightKg": null,
    "actualBodyFatPct": null,
@@ -446,44 +538,767 @@
    "category": "goal",
    "title": "理想的に体が変わっています",
    "detail": "体脂肪率 週-0.17%・除脂肪 週+0.07kg。脂肪が落ちて筋肉が増えています。体重の増減は気にしなくて大丈夫です。"
+  },
+  {
+   "level": "good",
+   "category": "training",
+   "title": "今週の自己ベスト更新：スクワット、ルーマニアン・デッドリフト、レッグプレス",
+   "detail": "推定1RM スクワット 113.3kg・ルーマニアン・デッドリフト 100kg・レッグプレス 193.3kg。体脂肪を落としながら筋力が伸びているのは、筋肉が増えている良いサインです。"
   }
  ],
  "sources": [
   {
    "key": "weight",
    "label": "体重（タニタ）",
-   "lastDate": "2026-10-29",
+   "lastDate": "2026-10-30",
    "days": 0
   },
   {
    "key": "sleep",
    "label": "睡眠（Sleep Cycle）",
-   "lastDate": "2026-10-29",
+   "lastDate": "2026-10-30",
    "days": 0
   },
   {
    "key": "nutrition",
    "label": "食事（カロミル）",
-   "lastDate": "2026-10-29",
+   "lastDate": "2026-10-30",
    "days": 0
   },
   {
    "key": "activity",
    "label": "歩数",
-   "lastDate": "2026-10-29",
+   "lastDate": "2026-10-30",
    "days": 0
   },
   {
    "key": "workouts",
    "label": "トレーニング（フィットネスポイント）",
    "lastDate": "2026-10-28",
-   "days": 1
+   "days": 2
   }
  ],
+ "strength": {
+  "hasData": true,
+  "sessions": 31,
+  "firstDate": "2026-09-19",
+  "lastDate": "2026-10-28",
+  "exercises": [
+   {
+    "key": "スクワット",
+    "name": "スクワット",
+    "part": "legs",
+    "compound": true,
+    "sessions": 6,
+    "sessions4w": 4,
+    "lastDate": "2026-10-24",
+    "lastSets": [
+     {
+      "weightKg": 85,
+      "reps": 10
+     },
+     {
+      "weightKg": 85,
+      "reps": 9
+     },
+     {
+      "weightKg": 85,
+      "reps": 8
+     }
+    ],
+    "last1rm": 113.3,
+    "best1rm": 113.3,
+    "prDate": "2026-10-24",
+    "change4wPct": 6.2,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-19",
+      "e1rm": 101.3,
+      "top": "80kg×8"
+     },
+     {
+      "date": "2026-09-26",
+      "e1rm": 106.7,
+      "top": "80kg×10"
+     },
+     {
+      "date": "2026-10-03",
+      "e1rm": 107.3,
+      "top": "82.5kg×9"
+     },
+     {
+      "date": "2026-10-10",
+      "e1rm": 107.3,
+      "top": "82.5kg×9"
+     },
+     {
+      "date": "2026-10-17",
+      "e1rm": 107.7,
+      "top": "85kg×8"
+     },
+     {
+      "date": "2026-10-24",
+      "e1rm": 113.3,
+      "top": "85kg×10"
+     }
+    ]
+   },
+   {
+    "key": "ルーマニアンデッドリフト",
+    "name": "ルーマニアン・デッドリフト",
+    "part": "legs",
+    "compound": true,
+    "sessions": 6,
+    "sessions4w": 4,
+    "lastDate": "2026-10-24",
+    "lastSets": [
+     {
+      "weightKg": 75,
+      "reps": 10
+     },
+     {
+      "weightKg": 75,
+      "reps": 9
+     },
+     {
+      "weightKg": 75,
+      "reps": 8
+     }
+    ],
+    "last1rm": 100,
+    "best1rm": 100,
+    "prDate": "2026-10-24",
+    "change4wPct": 7.2,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-19",
+      "e1rm": 88.7,
+      "top": "70kg×8"
+     },
+     {
+      "date": "2026-09-26",
+      "e1rm": 93.3,
+      "top": "70kg×10"
+     },
+     {
+      "date": "2026-10-03",
+      "e1rm": 94.3,
+      "top": "72.5kg×9"
+     },
+     {
+      "date": "2026-10-10",
+      "e1rm": 94.3,
+      "top": "72.5kg×9"
+     },
+     {
+      "date": "2026-10-17",
+      "e1rm": 95,
+      "top": "75kg×8"
+     },
+     {
+      "date": "2026-10-24",
+      "e1rm": 100,
+      "top": "75kg×10"
+     }
+    ]
+   },
+   {
+    "key": "レッグプレス",
+    "name": "レッグプレス",
+    "part": "legs",
+    "compound": true,
+    "sessions": 6,
+    "sessions4w": 4,
+    "lastDate": "2026-10-24",
+    "lastSets": [
+     {
+      "weightKg": 145,
+      "reps": 10
+     },
+     {
+      "weightKg": 145,
+      "reps": 9
+     },
+     {
+      "weightKg": 145,
+      "reps": 8
+     }
+    ],
+    "last1rm": 193.3,
+    "best1rm": 193.3,
+    "prDate": "2026-10-24",
+    "change4wPct": 3.5,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-19",
+      "e1rm": 177.3,
+      "top": "140kg×8"
+     },
+     {
+      "date": "2026-09-26",
+      "e1rm": 186.7,
+      "top": "140kg×10"
+     },
+     {
+      "date": "2026-10-03",
+      "e1rm": 185.3,
+      "top": "142.5kg×9"
+     },
+     {
+      "date": "2026-10-10",
+      "e1rm": 185.3,
+      "top": "142.5kg×9"
+     },
+     {
+      "date": "2026-10-17",
+      "e1rm": 183.7,
+      "top": "145kg×8"
+     },
+     {
+      "date": "2026-10-24",
+      "e1rm": 193.3,
+      "top": "145kg×10"
+     }
+    ]
+   },
+   {
+    "key": "レッグカール",
+    "name": "レッグカール",
+    "part": "legs",
+    "compound": false,
+    "sessions": 6,
+    "sessions4w": 4,
+    "lastDate": "2026-10-24",
+    "lastSets": [
+     {
+      "weightKg": 42,
+      "reps": 11
+     },
+     {
+      "weightKg": 42,
+      "reps": 10
+     },
+     {
+      "weightKg": 42,
+      "reps": 9
+     }
+    ],
+    "last1rm": 57.4,
+    "best1rm": 57.4,
+    "prDate": "2026-10-17",
+    "change4wPct": 4.9,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-19",
+      "e1rm": 54.7,
+      "top": "40kg×11"
+     },
+     {
+      "date": "2026-09-26",
+      "e1rm": 54.7,
+      "top": "40kg×11"
+     },
+     {
+      "date": "2026-10-03",
+      "e1rm": 56,
+      "top": "41kg×11"
+     },
+     {
+      "date": "2026-10-10",
+      "e1rm": 56,
+      "top": "41kg×11"
+     },
+     {
+      "date": "2026-10-17",
+      "e1rm": 57.4,
+      "top": "42kg×11"
+     },
+     {
+      "date": "2026-10-24",
+      "e1rm": 57.4,
+      "top": "42kg×11"
+     }
+    ]
+   },
+   {
+    "key": "レッグエクステンション",
+    "name": "レッグエクステンション",
+    "part": "legs",
+    "compound": false,
+    "sessions": 6,
+    "sessions4w": 4,
+    "lastDate": "2026-10-24",
+    "lastSets": [
+     {
+      "weightKg": 47,
+      "reps": 11
+     },
+     {
+      "weightKg": 47,
+      "reps": 10
+     },
+     {
+      "weightKg": 47,
+      "reps": 9
+     }
+    ],
+    "last1rm": 64.2,
+    "best1rm": 64.2,
+    "prDate": "2026-10-17",
+    "change4wPct": 4.4,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-19",
+      "e1rm": 61.5,
+      "top": "45kg×11"
+     },
+     {
+      "date": "2026-09-26",
+      "e1rm": 61.5,
+      "top": "45kg×11"
+     },
+     {
+      "date": "2026-10-03",
+      "e1rm": 62.9,
+      "top": "46kg×11"
+     },
+     {
+      "date": "2026-10-10",
+      "e1rm": 62.9,
+      "top": "46kg×11"
+     },
+     {
+      "date": "2026-10-17",
+      "e1rm": 64.2,
+      "top": "47kg×11"
+     },
+     {
+      "date": "2026-10-24",
+      "e1rm": 64.2,
+      "top": "47kg×11"
+     }
+    ]
+   },
+   {
+    "key": "カーフレイズ",
+    "name": "カーフレイズ",
+    "part": "legs",
+    "compound": false,
+    "sessions": 6,
+    "sessions4w": 4,
+    "lastDate": "2026-10-24",
+    "lastSets": [
+     {
+      "weightKg": 62,
+      "reps": 11
+     },
+     {
+      "weightKg": 62,
+      "reps": 10
+     },
+     {
+      "weightKg": 62,
+      "reps": 9
+     }
+    ],
+    "last1rm": 84.7,
+    "best1rm": 84.7,
+    "prDate": "2026-10-17",
+    "change4wPct": 3.3,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-19",
+      "e1rm": 82,
+      "top": "60kg×11"
+     },
+     {
+      "date": "2026-09-26",
+      "e1rm": 82,
+      "top": "60kg×11"
+     },
+     {
+      "date": "2026-10-03",
+      "e1rm": 83.4,
+      "top": "61kg×11"
+     },
+     {
+      "date": "2026-10-10",
+      "e1rm": 83.4,
+      "top": "61kg×11"
+     },
+     {
+      "date": "2026-10-17",
+      "e1rm": 84.7,
+      "top": "62kg×11"
+     },
+     {
+      "date": "2026-10-24",
+      "e1rm": 84.7,
+      "top": "62kg×11"
+     }
+    ]
+   },
+   {
+    "key": "ベンチプレス",
+    "name": "ベンチプレス",
+    "part": "chest",
+    "compound": true,
+    "sessions": 5,
+    "sessions4w": 3,
+    "lastDate": "2026-10-25",
+    "lastSets": [
+     {
+      "weightKg": 75,
+      "reps": 8
+     },
+     {
+      "weightKg": 75,
+      "reps": 7
+     },
+     {
+      "weightKg": 75,
+      "reps": 6
+     }
+    ],
+    "last1rm": 95,
+    "best1rm": 95,
+    "prDate": "2026-10-18",
+    "change4wPct": 1.8,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-20",
+      "e1rm": 88.7,
+      "top": "70kg×8"
+     },
+     {
+      "date": "2026-09-27",
+      "e1rm": 93.3,
+      "top": "70kg×10"
+     },
+     {
+      "date": "2026-10-11",
+      "e1rm": 94.3,
+      "top": "72.5kg×9"
+     },
+     {
+      "date": "2026-10-18",
+      "e1rm": 95,
+      "top": "75kg×8"
+     },
+     {
+      "date": "2026-10-25",
+      "e1rm": 95,
+      "top": "75kg×8"
+     }
+    ]
+   },
+   {
+    "key": "インクラインダンベルプレス",
+    "name": "インクライン・ダンベルプレス",
+    "part": "chest",
+    "compound": true,
+    "sessions": 5,
+    "sessions4w": 3,
+    "lastDate": "2026-10-25",
+    "lastSets": [
+     {
+      "weightKg": 29,
+      "reps": 8
+     },
+     {
+      "weightKg": 29,
+      "reps": 7
+     },
+     {
+      "weightKg": 29,
+      "reps": 6
+     }
+    ],
+    "last1rm": 36.7,
+    "best1rm": 36.7,
+    "prDate": "2026-10-18",
+    "change4wPct": 14.7,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-20",
+      "e1rm": 30.4,
+      "top": "24kg×8"
+     },
+     {
+      "date": "2026-09-27",
+      "e1rm": 32,
+      "top": "24kg×10"
+     },
+     {
+      "date": "2026-10-11",
+      "e1rm": 34.5,
+      "top": "26.5kg×9"
+     },
+     {
+      "date": "2026-10-18",
+      "e1rm": 36.7,
+      "top": "29kg×8"
+     },
+     {
+      "date": "2026-10-25",
+      "e1rm": 36.7,
+      "top": "29kg×8"
+     }
+    ]
+   },
+   {
+    "key": "ケーブルフライorディップス",
+    "name": "ケーブルフライ or ディップス",
+    "part": "chest",
+    "compound": true,
+    "sessions": 5,
+    "sessions4w": 3,
+    "lastDate": "2026-10-25",
+    "lastSets": [
+     {
+      "weightKg": 20,
+      "reps": 8
+     },
+     {
+      "weightKg": 20,
+      "reps": 7
+     },
+     {
+      "weightKg": 20,
+      "reps": 6
+     }
+    ],
+    "last1rm": 25.3,
+    "best1rm": 25.3,
+    "prDate": "2026-10-18",
+    "change4wPct": 26.5,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-20",
+      "e1rm": 19,
+      "top": "15kg×8"
+     },
+     {
+      "date": "2026-09-27",
+      "e1rm": 20,
+      "top": "15kg×10"
+     },
+     {
+      "date": "2026-10-11",
+      "e1rm": 22.8,
+      "top": "17.5kg×9"
+     },
+     {
+      "date": "2026-10-18",
+      "e1rm": 25.3,
+      "top": "20kg×8"
+     },
+     {
+      "date": "2026-10-25",
+      "e1rm": 25.3,
+      "top": "20kg×8"
+     }
+    ]
+   },
+   {
+    "key": "バーベルカール",
+    "name": "バーベルカール",
+    "part": "arms",
+    "compound": false,
+    "sessions": 5,
+    "sessions4w": 3,
+    "lastDate": "2026-10-25",
+    "lastSets": [
+     {
+      "weightKg": 32,
+      "reps": 11
+     },
+     {
+      "weightKg": 32,
+      "reps": 10
+     },
+     {
+      "weightKg": 32,
+      "reps": 9
+     }
+    ],
+    "last1rm": 43.7,
+    "best1rm": 43.7,
+    "prDate": "2026-10-18",
+    "change4wPct": 6.6,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-20",
+      "e1rm": 41,
+      "top": "30kg×11"
+     },
+     {
+      "date": "2026-09-27",
+      "e1rm": 41,
+      "top": "30kg×11"
+     },
+     {
+      "date": "2026-10-11",
+      "e1rm": 42.4,
+      "top": "31kg×11"
+     },
+     {
+      "date": "2026-10-18",
+      "e1rm": 43.7,
+      "top": "32kg×11"
+     },
+     {
+      "date": "2026-10-25",
+      "e1rm": 43.7,
+      "top": "32kg×11"
+     }
+    ]
+   },
+   {
+    "key": "トライセプスエクステンション",
+    "name": "トライセプス・エクステンション",
+    "part": "arms",
+    "compound": false,
+    "sessions": 5,
+    "sessions4w": 3,
+    "lastDate": "2026-10-25",
+    "lastSets": [
+     {
+      "weightKg": 27,
+      "reps": 11
+     },
+     {
+      "weightKg": 27,
+      "reps": 10
+     },
+     {
+      "weightKg": 27,
+      "reps": 9
+     }
+    ],
+    "last1rm": 36.9,
+    "best1rm": 36.9,
+    "prDate": "2026-10-18",
+    "change4wPct": 7.9,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-20",
+      "e1rm": 34.2,
+      "top": "25kg×11"
+     },
+     {
+      "date": "2026-09-27",
+      "e1rm": 34.2,
+      "top": "25kg×11"
+     },
+     {
+      "date": "2026-10-11",
+      "e1rm": 35.5,
+      "top": "26kg×11"
+     },
+     {
+      "date": "2026-10-18",
+      "e1rm": 36.9,
+      "top": "27kg×11"
+     },
+     {
+      "date": "2026-10-25",
+      "e1rm": 36.9,
+      "top": "27kg×11"
+     }
+    ]
+   },
+   {
+    "key": "ハンマーカール",
+    "name": "ハンマーカール",
+    "part": "arms",
+    "compound": false,
+    "sessions": 5,
+    "sessions4w": 3,
+    "lastDate": "2026-10-25",
+    "lastSets": [
+     {
+      "weightKg": 14,
+      "reps": 11
+     },
+     {
+      "weightKg": 14,
+      "reps": 10
+     },
+     {
+      "weightKg": 14,
+      "reps": 9
+     }
+    ],
+    "last1rm": 19.1,
+    "best1rm": 19.1,
+    "prDate": "2026-10-18",
+    "change4wPct": 16.5,
+    "stalled": false,
+    "series": [
+     {
+      "date": "2026-09-20",
+      "e1rm": 16.4,
+      "top": "12kg×11"
+     },
+     {
+      "date": "2026-09-27",
+      "e1rm": 16.4,
+      "top": "12kg×11"
+     },
+     {
+      "date": "2026-10-11",
+      "e1rm": 17.8,
+      "top": "13kg×11"
+     },
+     {
+      "date": "2026-10-18",
+      "e1rm": 19.1,
+      "top": "14kg×11"
+     },
+     {
+      "date": "2026-10-25",
+      "e1rm": 19.1,
+      "top": "14kg×11"
+     }
+    ]
+   }
+  ],
+  "prs": [
+   {
+    "name": "スクワット",
+    "best1rm": 113.3,
+    "prDate": "2026-10-24"
+   },
+   {
+    "name": "ルーマニアン・デッドリフト",
+    "best1rm": 100,
+    "prDate": "2026-10-24"
+   },
+   {
+    "name": "レッグプレス",
+    "best1rm": 193.3,
+    "prDate": "2026-10-24"
+   }
+  ],
+  "stalled": [],
+  "declining": []
+ },
  "series": {
   "weight": [
    {
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "weight": 85.6,
     "trend": 85.6,
     "bodyFatPct": 25.7,
@@ -495,7 +1310,7 @@
     "planLean": 63.6
    },
    {
-    "date": "2026-09-19",
+    "date": "2026-09-20",
     "weight": 86.3,
     "trend": 85.71,
     "bodyFatPct": 25.7,
@@ -507,7 +1322,7 @@
     "planLean": 63.61
    },
    {
-    "date": "2026-09-20",
+    "date": "2026-09-21",
     "weight": 86.2,
     "trend": 85.78,
     "bodyFatPct": 25.4,
@@ -519,7 +1334,7 @@
     "planLean": 63.62
    },
    {
-    "date": "2026-09-21",
+    "date": "2026-09-22",
     "weight": 86.4,
     "trend": 85.87,
     "bodyFatPct": 26.1,
@@ -531,7 +1346,7 @@
     "planLean": 63.63
    },
    {
-    "date": "2026-09-22",
+    "date": "2026-09-23",
     "weight": 85.8,
     "trend": 85.86,
     "bodyFatPct": 25.4,
@@ -543,7 +1358,7 @@
     "planLean": 63.64
    },
    {
-    "date": "2026-09-23",
+    "date": "2026-09-24",
     "weight": 86.4,
     "trend": 85.94,
     "bodyFatPct": 25.4,
@@ -555,7 +1370,7 @@
     "planLean": 63.65
    },
    {
-    "date": "2026-09-24",
+    "date": "2026-09-25",
     "weight": 86.1,
     "trend": 85.97,
     "bodyFatPct": 26.3,
@@ -567,7 +1382,7 @@
     "planLean": 63.66
    },
    {
-    "date": "2026-09-25",
+    "date": "2026-09-26",
     "weight": 85.8,
     "trend": 85.94,
     "bodyFatPct": 25.9,
@@ -579,7 +1394,7 @@
     "planLean": 63.67
    },
    {
-    "date": "2026-09-26",
+    "date": "2026-09-27",
     "weight": 86.1,
     "trend": 85.96,
     "bodyFatPct": 26.5,
@@ -591,7 +1406,7 @@
     "planLean": 63.68
    },
    {
-    "date": "2026-09-27",
+    "date": "2026-09-28",
     "weight": 86.2,
     "trend": 86,
     "bodyFatPct": 26.4,
@@ -603,7 +1418,7 @@
     "planLean": 63.69
    },
    {
-    "date": "2026-09-28",
+    "date": "2026-09-29",
     "weight": 85.4,
     "trend": 85.91,
     "bodyFatPct": 25,
@@ -615,7 +1430,7 @@
     "planLean": 63.7
    },
    {
-    "date": "2026-09-29",
+    "date": "2026-09-30",
     "weight": 85.7,
     "trend": 85.88,
     "bodyFatPct": 26.1,
@@ -627,7 +1442,7 @@
     "planLean": 63.71
    },
    {
-    "date": "2026-09-30",
+    "date": "2026-10-01",
     "weight": 85.4,
     "trend": 85.81,
     "bodyFatPct": 25.1,
@@ -639,7 +1454,7 @@
     "planLean": 63.72
    },
    {
-    "date": "2026-10-01",
+    "date": "2026-10-02",
     "weight": 85.6,
     "trend": 85.78,
     "bodyFatPct": 26,
@@ -647,11 +1462,11 @@
     "leanMassKg": 63.34,
     "leanTrend": 63.68,
     "plan": 85.87,
-    "planBf": 25.83,
+    "planBf": 25.82,
     "planLean": 63.73
    },
    {
-    "date": "2026-10-02",
+    "date": "2026-10-03",
     "weight": 86.2,
     "trend": 85.84,
     "bodyFatPct": 25.7,
@@ -660,10 +1475,10 @@
     "leanTrend": 63.72,
     "plan": 85.86,
     "planBf": 25.8,
-    "planLean": 63.74
+    "planLean": 63.75
    },
    {
-    "date": "2026-10-03",
+    "date": "2026-10-04",
     "weight": 85.6,
     "trend": 85.8,
     "bodyFatPct": 25.5,
@@ -672,10 +1487,10 @@
     "leanTrend": 63.72,
     "plan": 85.85,
     "planBf": 25.78,
-    "planLean": 63.75
+    "planLean": 63.76
    },
    {
-    "date": "2026-10-04",
+    "date": "2026-10-05",
     "weight": 86,
     "trend": 85.83,
     "bodyFatPct": 25.1,
@@ -684,10 +1499,10 @@
     "leanTrend": 63.79,
     "plan": 85.84,
     "planBf": 25.76,
-    "planLean": 63.76
+    "planLean": 63.77
    },
    {
-    "date": "2026-10-05",
+    "date": "2026-10-06",
     "weight": null,
     "trend": 85.83,
     "bodyFatPct": null,
@@ -699,7 +1514,7 @@
     "planLean": 63.78
    },
    {
-    "date": "2026-10-06",
+    "date": "2026-10-07",
     "weight": 85.4,
     "trend": 85.77,
     "bodyFatPct": 25.1,
@@ -711,7 +1526,7 @@
     "planLean": 63.79
    },
    {
-    "date": "2026-10-07",
+    "date": "2026-10-08",
     "weight": 86,
     "trend": 85.8,
     "bodyFatPct": 24.9,
@@ -723,7 +1538,7 @@
     "planLean": 63.8
    },
    {
-    "date": "2026-10-08",
+    "date": "2026-10-09",
     "weight": 85.9,
     "trend": 85.82,
     "bodyFatPct": 25.5,
@@ -735,18 +1550,6 @@
     "planLean": 63.81
    },
    {
-    "date": "2026-10-09",
-    "weight": null,
-    "trend": 85.82,
-    "bodyFatPct": null,
-    "bfTrend": 25.54,
-    "leanMassKg": null,
-    "leanTrend": 63.9,
-    "plan": 85.79,
-    "planBf": 25.66,
-    "planLean": 63.82
-   },
-   {
     "date": "2026-10-10",
     "weight": null,
     "trend": 85.82,
@@ -754,12 +1557,24 @@
     "bfTrend": 25.54,
     "leanMassKg": null,
     "leanTrend": 63.9,
-    "plan": 85.78,
-    "planBf": 25.64,
-    "planLean": 63.83
+    "plan": 85.79,
+    "planBf": 25.65,
+    "planLean": 63.82
    },
    {
     "date": "2026-10-11",
+    "weight": null,
+    "trend": 85.82,
+    "bodyFatPct": null,
+    "bfTrend": 25.54,
+    "leanMassKg": null,
+    "leanTrend": 63.9,
+    "plan": 85.78,
+    "planBf": 25.63,
+    "planLean": 63.83
+   },
+   {
+    "date": "2026-10-12",
     "weight": 85.7,
     "trend": 85.8,
     "bodyFatPct": 26,
@@ -771,7 +1586,7 @@
     "planLean": 63.84
    },
    {
-    "date": "2026-10-12",
+    "date": "2026-10-13",
     "weight": 85.6,
     "trend": 85.77,
     "bodyFatPct": 25.6,
@@ -783,103 +1598,103 @@
     "planLean": 63.85
    },
    {
-    "date": "2026-10-13",
+    "date": "2026-10-14",
     "weight": null,
     "trend": 85.77,
     "bodyFatPct": null,
     "bfTrend": 25.59,
     "leanMassKg": null,
     "leanTrend": 63.83,
-    "plan": 85.76,
+    "plan": 85.75,
     "planBf": 25.57,
     "planLean": 63.86
    },
    {
-    "date": "2026-10-14",
+    "date": "2026-10-15",
     "weight": 85.1,
     "trend": 85.67,
     "bodyFatPct": 26,
     "bfTrend": 25.63,
     "leanMassKg": 62.97,
     "leanTrend": 63.75,
-    "plan": 85.75,
+    "plan": 85.74,
     "planBf": 25.55,
     "planLean": 63.87
    },
    {
-    "date": "2026-10-15",
+    "date": "2026-10-16",
     "weight": 85.4,
     "trend": 85.63,
     "bodyFatPct": 24.9,
     "bfTrend": 25.56,
     "leanMassKg": 64.14,
     "leanTrend": 63.79,
-    "plan": 85.74,
+    "plan": 85.73,
     "planBf": 25.53,
     "planLean": 63.88
    },
    {
-    "date": "2026-10-16",
+    "date": "2026-10-17",
     "weight": 85.2,
     "trend": 85.56,
     "bodyFatPct": 25.1,
     "bfTrend": 25.51,
     "leanMassKg": 63.81,
     "leanTrend": 63.79,
-    "plan": 85.73,
+    "plan": 85.72,
     "planBf": 25.51,
     "planLean": 63.89
    },
    {
-    "date": "2026-10-17",
+    "date": "2026-10-18",
     "weight": null,
     "trend": 85.56,
     "bodyFatPct": null,
     "bfTrend": 25.51,
     "leanMassKg": null,
     "leanTrend": 63.79,
-    "plan": 85.72,
-    "planBf": 25.49,
+    "plan": 85.71,
+    "planBf": 25.48,
     "planLean": 63.9
    },
    {
-    "date": "2026-10-18",
+    "date": "2026-10-19",
     "weight": 85.7,
     "trend": 85.58,
     "bodyFatPct": 24.7,
     "bfTrend": 25.43,
     "leanMassKg": 64.53,
     "leanTrend": 63.86,
-    "plan": 85.71,
-    "planBf": 25.47,
+    "plan": 85.7,
+    "planBf": 25.46,
     "planLean": 63.91
    },
    {
-    "date": "2026-10-19",
+    "date": "2026-10-20",
     "weight": 85.7,
     "trend": 85.6,
     "bodyFatPct": 25.2,
     "bfTrend": 25.41,
     "leanMassKg": 64.1,
     "leanTrend": 63.89,
-    "plan": 85.7,
+    "plan": 85.69,
     "planBf": 25.44,
     "planLean": 63.92
    },
    {
-    "date": "2026-10-20",
+    "date": "2026-10-21",
     "weight": 85.6,
     "trend": 85.6,
     "bodyFatPct": 25.3,
     "bfTrend": 25.4,
     "leanMassKg": 63.94,
     "leanTrend": 63.89,
-    "plan": 85.69,
+    "plan": 85.68,
     "planBf": 25.42,
     "planLean": 63.93
    },
    {
-    "date": "2026-10-21",
+    "date": "2026-10-22",
     "weight": 85.6,
     "trend": 85.6,
     "bodyFatPct": 25,
@@ -891,7 +1706,7 @@
     "planLean": 63.94
    },
    {
-    "date": "2026-10-22",
+    "date": "2026-10-23",
     "weight": 85.5,
     "trend": 85.59,
     "bodyFatPct": 25.8,
@@ -903,7 +1718,7 @@
     "planLean": 63.95
    },
    {
-    "date": "2026-10-23",
+    "date": "2026-10-24",
     "weight": 85.2,
     "trend": 85.53,
     "bodyFatPct": 25.4,
@@ -915,7 +1730,7 @@
     "planLean": 63.96
    },
    {
-    "date": "2026-10-24",
+    "date": "2026-10-25",
     "weight": 85.5,
     "trend": 85.52,
     "bodyFatPct": 25.5,
@@ -927,7 +1742,7 @@
     "planLean": 63.97
    },
    {
-    "date": "2026-10-25",
+    "date": "2026-10-26",
     "weight": 85.4,
     "trend": 85.51,
     "bodyFatPct": 25.5,
@@ -935,11 +1750,11 @@
     "leanMassKg": 63.62,
     "leanTrend": 63.81,
     "plan": 85.64,
-    "planBf": 25.32,
+    "planBf": 25.31,
     "planLean": 63.98
    },
    {
-    "date": "2026-10-26",
+    "date": "2026-10-27",
     "weight": 85.5,
     "trend": 85.5,
     "bodyFatPct": 25.5,
@@ -947,11 +1762,11 @@
     "leanMassKg": 63.7,
     "leanTrend": 63.8,
     "plan": 85.63,
-    "planBf": 25.3,
+    "planBf": 25.29,
     "planLean": 63.99
    },
    {
-    "date": "2026-10-27",
+    "date": "2026-10-28",
     "weight": 85.7,
     "trend": 85.53,
     "bodyFatPct": 24.9,
@@ -959,11 +1774,11 @@
     "leanMassKg": 64.36,
     "leanTrend": 63.85,
     "plan": 85.62,
-    "planBf": 25.28,
+    "planBf": 25.27,
     "planLean": 64
    },
    {
-    "date": "2026-10-28",
+    "date": "2026-10-29",
     "weight": 84.8,
     "trend": 85.42,
     "bodyFatPct": 25.1,
@@ -975,7 +1790,7 @@
     "planLean": 64.01
    },
    {
-    "date": "2026-10-29",
+    "date": "2026-10-30",
     "weight": 85.6,
     "trend": 85.45,
     "bodyFatPct": 24.1,
@@ -989,25 +1804,25 @@
   ],
   "daily": [
    {
-    "date": "2026-10-02",
+    "date": "2026-10-03",
     "kcal": 2226,
     "proteinG": 148,
-    "sleepMinutes": 399,
+    "sleepMinutes": 429,
     "steps": 6710,
     "strength": 1,
     "cardio": 0
    },
    {
-    "date": "2026-10-03",
+    "date": "2026-10-04",
     "kcal": 2372,
     "proteinG": 137,
-    "sleepMinutes": 371,
+    "sleepMinutes": 341,
     "steps": 9924,
     "strength": 0,
     "cardio": 0
    },
    {
-    "date": "2026-10-04",
+    "date": "2026-10-05",
     "kcal": 2641,
     "proteinG": 146,
     "sleepMinutes": 445,
@@ -1016,7 +1831,7 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-05",
+    "date": "2026-10-06",
     "kcal": 2271,
     "proteinG": 127,
     "sleepMinutes": 457,
@@ -1025,7 +1840,7 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-06",
+    "date": "2026-10-07",
     "kcal": 2299,
     "proteinG": 182,
     "sleepMinutes": 381,
@@ -1034,43 +1849,43 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-07",
+    "date": "2026-10-08",
     "kcal": 2393,
     "proteinG": 161,
     "sleepMinutes": 430,
     "steps": 6210,
-    "strength": 1,
-    "cardio": 0
-   },
-   {
-    "date": "2026-10-08",
-    "kcal": 2455,
-    "proteinG": 134,
-    "sleepMinutes": 347,
-    "steps": 5347,
     "strength": 0,
     "cardio": 0
    },
    {
     "date": "2026-10-09",
-    "kcal": 2438,
-    "proteinG": 148,
-    "sleepMinutes": 404,
-    "steps": 7004,
+    "kcal": 2455,
+    "proteinG": 134,
+    "sleepMinutes": 347,
+    "steps": 5347,
     "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-10",
-    "kcal": 2490,
-    "proteinG": 141,
-    "sleepMinutes": 436,
-    "steps": 7442,
+    "kcal": 2438,
+    "proteinG": 148,
+    "sleepMinutes": 434,
+    "steps": 7004,
     "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-11",
+    "kcal": 2490,
+    "proteinG": 141,
+    "sleepMinutes": 406,
+    "steps": 7442,
+    "strength": 1,
+    "cardio": 0
+   },
+   {
+    "date": "2026-10-12",
     "kcal": 2338,
     "proteinG": 178,
     "sleepMinutes": 456,
@@ -1079,7 +1894,7 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-12",
+    "date": "2026-10-13",
     "kcal": 2128,
     "proteinG": 171,
     "sleepMinutes": 410,
@@ -1088,7 +1903,7 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-13",
+    "date": "2026-10-14",
     "kcal": 2248,
     "proteinG": 184,
     "sleepMinutes": 456,
@@ -1097,43 +1912,43 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-14",
+    "date": "2026-10-15",
     "kcal": 2138,
     "proteinG": 154,
     "sleepMinutes": 429,
     "steps": 6351,
-    "strength": 1,
-    "cardio": 0
-   },
-   {
-    "date": "2026-10-15",
-    "kcal": 2425,
-    "proteinG": 155,
-    "sleepMinutes": 391,
-    "steps": 6444,
     "strength": 0,
     "cardio": 0
    },
    {
     "date": "2026-10-16",
-    "kcal": 2122,
-    "proteinG": 161,
-    "sleepMinutes": 369,
-    "steps": 7772,
+    "kcal": 2425,
+    "proteinG": 155,
+    "sleepMinutes": 391,
+    "steps": 6444,
     "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-17",
-    "kcal": 2209,
-    "proteinG": 167,
-    "sleepMinutes": 373,
-    "steps": 5140,
+    "kcal": 2122,
+    "proteinG": 161,
+    "sleepMinutes": 399,
+    "steps": 7772,
     "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-18",
+    "kcal": 2209,
+    "proteinG": 167,
+    "sleepMinutes": 343,
+    "steps": 5140,
+    "strength": 1,
+    "cardio": 0
+   },
+   {
+    "date": "2026-10-19",
     "kcal": 2213,
     "proteinG": 166,
     "sleepMinutes": 386,
@@ -1142,7 +1957,7 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-19",
+    "date": "2026-10-20",
     "kcal": 2643,
     "proteinG": 142,
     "sleepMinutes": 401,
@@ -1151,7 +1966,7 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-20",
+    "date": "2026-10-21",
     "kcal": 2458,
     "proteinG": 146,
     "sleepMinutes": 412,
@@ -1160,43 +1975,43 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-21",
+    "date": "2026-10-22",
     "kcal": 2136,
     "proteinG": 151,
     "sleepMinutes": 392,
     "steps": 9240,
-    "strength": 1,
-    "cardio": 0
-   },
-   {
-    "date": "2026-10-22",
-    "kcal": 2496,
-    "proteinG": 147,
-    "sleepMinutes": 406,
-    "steps": 5808,
     "strength": 0,
     "cardio": 0
    },
    {
     "date": "2026-10-23",
-    "kcal": 2327,
-    "proteinG": 159,
-    "sleepMinutes": 427,
-    "steps": 8797,
+    "kcal": 2496,
+    "proteinG": 147,
+    "sleepMinutes": 406,
+    "steps": 5808,
     "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-24",
-    "kcal": 2613,
-    "proteinG": 178,
-    "sleepMinutes": 413,
-    "steps": 6432,
+    "kcal": 2327,
+    "proteinG": 159,
+    "sleepMinutes": 457,
+    "steps": 8797,
     "strength": 1,
     "cardio": 0
    },
    {
     "date": "2026-10-25",
+    "kcal": 2613,
+    "proteinG": 178,
+    "sleepMinutes": 383,
+    "steps": 6432,
+    "strength": 1,
+    "cardio": 0
+   },
+   {
+    "date": "2026-10-26",
     "kcal": 2171,
     "proteinG": 145,
     "sleepMinutes": 384,
@@ -1205,7 +2020,7 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-26",
+    "date": "2026-10-27",
     "kcal": 2266,
     "proteinG": 178,
     "sleepMinutes": 343,
@@ -1214,7 +2029,7 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-27",
+    "date": "2026-10-28",
     "kcal": 2170,
     "proteinG": 175,
     "sleepMinutes": 355,
@@ -1223,16 +2038,16 @@
     "cardio": 0
    },
    {
-    "date": "2026-10-28",
+    "date": "2026-10-29",
     "kcal": 2319,
     "proteinG": 172,
     "sleepMinutes": 449,
     "steps": 6265,
-    "strength": 1,
+    "strength": 0,
     "cardio": 0
    },
    {
-    "date": "2026-10-29",
+    "date": "2026-10-30",
     "kcal": 1180,
     "proteinG": 88,
     "sleepMinutes": 404,

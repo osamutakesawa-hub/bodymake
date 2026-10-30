@@ -125,3 +125,88 @@ test('アプリ別の取り込み（Sleep Cycle の就寝中のみ・フィッ�
   const m2 = mergeDay(m, normalizeDay({ date: '2026-11-03', strengthWorkouts: 'A\nB' }));
   assert.equal(m2.workouts.filter((w) => w.group === 'strengthApp').length, 2);
 });
+
+// ---- FitnessPoint ログ ----
+import { csvToLogs, parseDate, parseSetText } from '../scripts/lib/fitnesspoint-csv.mjs';
+import { e1rm, nextTarget, bodyPart, exerciseHistory, exerciseProgress } from '../scripts/lib/strength.mjs';
+import { mergeTrainingLog } from '../scripts/lib/training-store.mjs';
+
+test('CSV：1行1セット形式（英語ヘッダ・クォート・lbs換算）', () => {
+  const csv = 'Date,Exercise,Set,Weight (lbs),Reps\n"2026/10/23 18:01","Bench Press",1,135,10\n2026/10/23,Bench Press,2,135,8\n10/24/2026,Squat,1,185,5\n';
+  const { logs } = csvToLogs(csv);
+  assert.equal(logs.length, 2);
+  assert.equal(logs[0].exercises[0].sets.length, 2);
+  assert.equal(logs[0].exercises[0].sets[0].weightKg, 61.24);
+  assert.equal(logs[1].date, '2026-10-24');
+});
+
+test('CSV：日本語ヘッダ・1セルに複数セット', () => {
+  const csv = '日付,種目,セット内容\n2026年10月30日,ベンチプレス,"60kg×10, 60kg×9"\n2026年10月30日,懸垂,0×8×3\n';
+  const { logs } = csvToLogs(csv);
+  assert.equal(logs[0].exercises[0].sets.length, 2);
+  assert.equal(logs[0].exercises[1].sets.length, 3);
+  assert.throws(() => csvToLogs('a,b\n1,2\n'), /列を判定できません/);
+});
+
+test('日付と1セル内セット表記の解釈', () => {
+  assert.equal(parseDate('Oct 30, 2026'), '2026-10-30');
+  assert.equal(parseDate('30/10/2026'), '2026-10-30');
+  assert.deepEqual(parseSetText('62.5 × 8'), [{ weightKg: 62.5, reps: 8 }]);
+});
+
+test('次回の目標（ダブルプログレッション）', () => {
+  const s = (w, ...reps) => reps.map((r) => ({ weightKg: w, reps: r }));
+  assert.equal(nextTarget(s(60, 10, 9, 8), [6, 10], 3).text, '60kg × 10・10・9');
+  const up = nextTarget(s(60, 10, 10, 10), [6, 10], 3);
+  assert.equal(up.increase, true);
+  assert.equal(up.weightKg, 62.5);
+  assert.equal(nextTarget(s(60, 10, 10, 10), [6, 10], 3, { deload: true }).weightKg, 50);
+  assert.equal(nextTarget(s(10, 12, 12), [10, 12], 3).weightKg, 12); // ダンベル +2kg
+  assert.equal(Math.round(e1rm(100, 10)), 133);
+});
+
+test('部位の判定', () => {
+  assert.equal(bodyPart('レッグエクステンション'), 'legs');
+  assert.equal(bodyPart('ショルダープレス'), 'shoulders');
+  assert.equal(bodyPart('インクライン・ダンベルプレス'), 'chest');
+  assert.equal(bodyPart('ラットプルダウン'), 'back');
+  assert.equal(bodyPart('トライセプス・エクステンション'), 'arms');
+  assert.equal(bodyPart('ハンギングレッグレイズ'), 'core');
+});
+
+test('スクリーンショットの追記と、軽い日を除いた筋力判定', () => {
+  const a = { date: '2026-11-06', exercises: [{ name: 'ベンチプレス', sets: [{ weightKg: 70, reps: 8 }] }] };
+  const m = mergeTrainingLog(a, { date: '2026-11-06', source: 'screenshot', exercises: [{ name: 'ベンチ プレス', sets: [{ weightKg: 70, reps: 9 }] }, { name: 'カール', sets: [{ weightKg: 30, reps: 10 }] }] });
+  assert.equal(m.exercises.length, 2);
+  assert.equal(m.exercises[0].sets[0].reps, 9);
+
+  const logs = [
+    { date: '2026-10-02', exercises: [{ name: 'ベンチプレス', sets: [{ weightKg: 70, reps: 8 }] }] },
+    { date: '2026-10-28', exercises: [{ name: 'ベンチプレス', sets: [{ weightKg: 42, reps: 15 }] }] }, // 軽い日（水）
+    { date: '2026-11-01', exercises: [{ name: 'ベンチプレス', sets: [{ weightKg: 72.5, reps: 8 }] }] },
+  ];
+  const p = exerciseProgress(exerciseHistory(logs, { skip: (d) => d === '2026-10-28' }), '2026-11-02');
+  assert.ok(p[0].change4wPct > 0);
+  assert.equal(p[0].sessions, 2);
+});
+
+test('筋トレログから今日のメニューと週の回数を出す', () => {
+  const logs = [{ date: '2026-10-30', exercises: [{ name: 'ラットプルダウン', sets: [{ weightKg: 55, reps: 10 }, { weightKg: 55, reps: 10 }, { weightKg: 55, reps: 10 }] }] }];
+  const d = analyze(raw, [], new Date('2026-11-06T03:00:00Z'), { training: logs }); // 金曜＝背中・肩（重）
+  assert.equal(d.training.fromLog, true);
+  assert.match(d.training.items[0].target, /^57\.5kg/);
+  const d2 = analyze(raw, [], new Date('2026-10-31T03:00:00Z'), { training: logs });
+  assert.equal(d2.week.goals.find((g) => g.key === 'strength').actual, 1);
+});
+
+test('前回の記録は種目の部位で照合する（曜日をずらしても拾える）', () => {
+  const logs = [
+    { date: '2026-10-30', exercises: [{ name: 'ベンチプレス', sets: [{ weightKg: 70, reps: 8 }] }] }, // 金曜に胸をやった
+    { date: '2026-10-28', exercises: [{ name: 'ベントオーバーロウ', sets: [{ weightKg: 40, reps: 15 }] }] }, // 水曜に背中（軽）
+  ];
+  const d = analyze(raw, [], new Date('2026-11-06T03:00:00Z'), { training: logs }); // 金曜＝背中・肩
+  assert.equal(d.training.items[0].name, 'ベントオーバーロウ');
+  assert.equal(d.training.items[0].target, null); // 軽い日の重量からは重い日の目標を出さない
+  const sun = analyze(raw, [], new Date('2026-11-08T03:00:00Z'), { training: logs }); // 日曜＝胸・腕
+  assert.equal(sun.training.items[0].name, 'ベンチプレス');
+});
